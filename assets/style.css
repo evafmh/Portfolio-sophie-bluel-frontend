@@ -1,0 +1,602 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video,
+button {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section,
+a,
+button {
+	display: block;
+}
+
+body {
+	line-height: 1;
+}
+
+ol,
+ul {
+	list-style: none;
+}
+
+blockquote,
+q {
+	quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+	content: '';
+	content: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+/** end reset css**/
+body {
+	max-width: 1440px;
+	margin: auto;
+	font-family: 'Work Sans';
+	font-size: 14px;
+	background-color: #FFFEF8;
+}
+
+header {
+	width: 90%;
+	margin: auto;
+	display: flex;
+	justify-content: space-between;
+	padding: 50px 0;
+}
+
+main {
+	width: 70%;
+	max-width: 1140px;
+	margin: auto;
+}
+
+section {
+	margin: 50px 0
+}
+
+h1 {
+	display: flex;
+	flex-direction: column;
+	font-family: 'Syne';
+	font-size: 22px;
+	font-weight: 800;
+	color: #B1663C
+}
+
+h1>span {
+	font-family: 'Work Sans';
+	font-size: 10px;
+	font-weight: 400;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	;
+}
+
+h2 {
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 30px;
+	color: #1D6154
+}
+
+nav ul {
+	display: flex;
+	align-items: center;
+	list-style-type: none;
+
+}
+
+nav li {
+	padding: 0 10px;
+	font-size: 1.2em;
+}
+
+li:hover {
+	color: #B1663C;
+}
+
+nav li .current-page {
+	font-weight: 700;
+}
+
+#introduction {
+	display: flex;
+	align-items: center;
+}
+
+#introduction figure {
+	flex: 1
+}
+
+#introduction img {
+	display: block;
+	margin: auto;
+	width: 80%;
+}
+
+#introduction article {
+	flex: 1
+}
+
+#introduction h2 {
+	margin-bottom: 1em;
+}
+
+#introduction p {
+	margin-bottom: 0.5em;
+	color: #3D3D3D;
+}
+
+#portfolio h2 {
+	text-align: center;
+	margin-bottom: 1em;
+}
+
+.filters-buttons {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	margin-bottom: 2.5em;
+}
+
+.filters-buttons button {
+	font-family: 'Syne';
+	font-weight: 700;
+	padding: 9px 15px;
+	text-align: center;
+	border: solid 1px #1D6154;
+	margin: 0.5em;
+	border-radius: 60px;
+	cursor: pointer;
+}
+
+.selected-filter-button {
+	background-color: #1D6154;
+	color: #FFFFFF;
+}
+
+.not-selected-filter-button {
+	background: none;
+	color: #1D6154;
+}
+
+.gallery {
+	width: 100%;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-column-gap: 20px;
+	grid-row-gap: 20px;
+	color: #3D3D3D;
+}
+
+.gallery img {
+	width: 100%;
+
+}
+
+#contact,
+#login {
+	width: 50%;
+	margin: auto;
+}
+
+#contact>*,
+#login>* {
+	text-align: center;
+
+}
+
+#contact h2,
+#login h2 {
+	margin-bottom: 20px;
+}
+
+#contact form,
+#login form {
+	text-align: left;
+	margin-top: 30px;
+	display: flex;
+	flex-direction: column;
+}
+
+#contact input,
+#login input,
+.modal-container input,
+.modal-container select {
+	height: 50px;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+
+input:not([type=submit]),
+select {
+	background-color: #FFFFFF;
+}
+
+#contact label,
+#login label,
+.modal-info-input-block label {
+	margin: 2em 0 1em 0;
+}
+
+#contact textarea {
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+
+#login-error-message {
+	margin: 2em;
+}
+
+input[type="submit"] {
+	font-family: 'Syne';
+	font-weight: 700;
+	color: white;
+	background-color: #1D6154;
+	margin: 2em auto;
+	width: 180px;
+	text-align: center;
+	border-radius: 60px;
+}
+
+input[type="submit"]:hover {
+	cursor: pointer;
+	background-color: #0E2F28;
+}
+
+footer {
+	width: 100%;
+}
+
+footer nav ul {
+	display: flex;
+	justify-content: flex-end;
+	margin: 2em;
+	height: 100%
+}
+
+footer li {
+	font-size: 14px;
+	font-weight: 300;
+}
+
+/*Edition mode*/
+
+
+.hidden {
+	display: none;
+}
+
+#introduction figure div {
+	width: 80%;
+	margin: auto;
+}
+
+#portfolio {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+#portfolio .editor-button {
+	margin-bottom: 1.7em;
+	margin-left: 20px;
+}
+
+.editor-button {
+	background: none;
+	cursor: pointer;
+	padding: 10px 0;
+}
+
+.editor-header-display {
+	background-color: black;
+	height: 60px;
+	color: #FFFFFF;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.editor-header-display span {
+	margin-left: 6px;
+}
+
+.editor-header-display button {
+	background: #FFFFFF;
+	border-radius: 60px;
+	font-weight: 500;
+	width: 216px;
+	height: 38px;
+	margin-left: 21px;
+	cursor: pointer;
+}
+
+.edit-notification-container {
+	display: none;
+	justify-content: center;
+	align-items: center;
+	background-color: #FFFFFF;
+	padding: 20px;
+}
+
+.modal {
+	position: fixed;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: rgb(0, 0, 0, 0.3);
+	display: none;
+}
+
+.modal-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #FFFFFF;
+	border-radius: 10px;
+	width: 570px;
+	max-width: 75%;
+	padding: 30px;
+	overflow: auto;
+}
+
+.close-button-container {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	width: 100%;
+}
+
+.close-and-previous-buttons-container {
+	flex-direction: row-reverse;
+	justify-content: space-between;
+}
+
+#modal-gallery {
+	width: 85%;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	grid-column-gap: 6px;
+	grid-row-gap: 8px;
+	margin: 0 70px;
+	padding: 45px 0;
+	border-bottom: 1px solid #B3B3B3;
+}
+
+#modal-gallery figure {
+	position: relative;
+}
+
+#modal-gallery img {
+	width: 100%;
+}
+
+#modal-gallery i {
+	background: #000000;
+	color: #FFFFFF;
+	border-radius: 2px;
+	padding: 4px;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	cursor: pointer;
+}
+
+#editor-modal-title {
+	font-weight: 400;
+	font-size: 26px;
+}
+
+.js-modal-close,
+.js-modal-previous,
+#modal-gallery a {
+	cursor: pointer;
+	background: none;
+}
+
+.modal-container input {
+	width: 237px;
+	font-size: 14px;
+}
+
+#gallery-delete-modal-button {
+	cursor: pointer;
+	color: #D65353;
+	background: none;
+}
+
+#add-photo-form {
+	width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-image-input-block {
+	display: flex;
+	height: fit-content;
+	width: 80%;
+	margin: 30px 0;
+	background: #E8F1F7;
+	border-radius: 3px;
+	flex-direction: column;
+	align-items: center;
+}
+
+/* Hiding the by default image input */
+.modal-image-input-block input {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.modal-image-input-block label {
+	color: #306685;
+	width: 173px;
+	background: #CBD6DC;
+	border-radius: 50px;
+	text-align: center;
+	padding: 10px 0;
+	margin-bottom: 7px;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.image-input-logo {
+	color: #B9C5CC;
+	padding: 20px 0;
+}
+
+.modal-image-input-block p {
+	color: #444444;
+	font-size: 10px;
+	padding-bottom: 20px;
+}
+
+.modal-info-input-block {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 80%;
+	padding-bottom: 40px;
+	border-bottom: 1px solid #B3B3B3;
+}
+
+.modal-info-input-block input,
+.modal-info-input-block select {
+	width: 100%;
+}
+
+#modal-validate-button {
+	background-color: #A7A7A7;
+}
+
+.notification-message {
+		color: #D65353;
+		font-family: 'Syne';
+		font-weight: 700;
+		text-align: center;
+}
