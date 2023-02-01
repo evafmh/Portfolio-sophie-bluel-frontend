@@ -179,15 +179,16 @@ function deleteProjectFromAPI(figureId) {
         });
 }
 
+let trashIconsAdded = false;
+
 //Fonction pour gérer les icônes de suppression
 function handleTrashIcons() {
-    if (modaleGalleryCreated) {
+    if (!trashIconsAdded) {
         let trashIcons = document.querySelectorAll('#modal-gallery .fa-trash');
 
         trashIcons.forEach(icon => {
             icon.addEventListener('click', event => {
                 event.preventDefault();
-                // figuresIdToDelete.add(figureId); // Ajoute l'ID de la figure à la liste des figures à supprimer
                 if (confirm("Etes-vous sûr.e de vouloir supprimer cet élément ?")) {
                     let figureId = icon.getAttribute('data-figure-id');
                     deleteProjectFromAPI(figureId);
@@ -196,6 +197,7 @@ function handleTrashIcons() {
                 }
             });
         });
+        trashIconsAdded = true;
     }
 }
 
