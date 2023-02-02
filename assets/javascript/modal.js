@@ -364,9 +364,9 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
             );
             modaleGalleryCreated = false;
             // Remettre les inputs à zéro
-            document.querySelector('#js-modal-uploaded-image').src = '';
-            document.querySelector('#js-modal-uploaded-image').alt = '';
-            document.querySelector('#js-modal-uploaded-image').style = '';
+            const uploadedImage = document.querySelector('#js-modal-uploaded-image');
+            const imageInputBlock = uploadedImage.parentNode;
+            imageInputBlock.removeChild(uploadedImage);
             document.querySelector('#modal-project-title').value = '';
             document.querySelector('#modal-project-category').value = '';
             //Afficher les autres éléments du block image-input
@@ -423,7 +423,6 @@ if (token !== null) {
     //Charger une image
     // Récupération des éléments de la page
     const imageInput = document.querySelector('#modal-project-image-input');
-    const uploadedImage = document.querySelector('#js-modal-uploaded-image');
     // Ajout d'un écouteur d'événement change sur l'input d'image
     imageInput.addEventListener('change', (event) => {
         // Récupération de l'image sélectionnée
@@ -438,12 +437,18 @@ if (token !== null) {
         }
         // Création d'un objet FileReader
         const reader = new FileReader();
+        //Création img
+        const uploadedImage = document.createElement('img');
+        uploadedImage.id = 'js-modal-uploaded-image';
         // Ajout d'un écouteur d'événement load sur l'objet FileReader
         reader.onload = (e) => {
             // Attribution de la source de l'image uploadée à l'image à afficher
             uploadedImage.src = e.target.result;
             uploadedImage.alt = image.name;
             uploadedImage.style.height = '180px';
+            //Ajout image uploadée au bloc
+            const imageInputBlock = document.querySelector('.modal-image-input-block');
+            imageInputBlock.appendChild(uploadedImage);
             //Masquer les autres éléments du block image-input
             const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
             elements.forEach(element => element.style.display = 'none');
