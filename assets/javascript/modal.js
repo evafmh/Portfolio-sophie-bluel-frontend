@@ -22,8 +22,8 @@ let currentModal = null;
 //Fonction ouvrir la modale 
 const openModal = function (event) {
     event.preventDefault();
-    //Récupère élément cible de l'attribut href du lien cliqué
-    currentModal = document.querySelector(this.getAttribute('href'));
+    //Récupère élément cible de l'attribut data-href du lien cliqué
+    currentModal = document.querySelector(this.getAttribute('data-href'));
     //Affiche la modale en flexbox
     currentModal.style.display = 'flex';
     currentModal.setAttribute('aria-hidden', false);
@@ -433,7 +433,9 @@ if (token !== null) {
         // Vérification de la taille de l'image
         if (image.size > 4000000) {
             alert("L'image est trop volumineuse (4 Mo maximum)");
-            this.value = "";
+            imageInput.value = "";
+            uploadedImage.src = "";
+            uploadedImage.alt = "";
             return;
         }
         // Création d'un objet FileReader
