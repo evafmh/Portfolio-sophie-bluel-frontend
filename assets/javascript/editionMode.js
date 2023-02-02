@@ -4,14 +4,13 @@ const token = localStorage.getItem('adminToken');
 //Vérification de la valeur du token avant d'afficher page en mode édition
 if (token !== null) {
 
-    //Cacher les filtres
+    //Masquer les filtres
     const filtersButtons = document.querySelector('.filters-buttons');
     //Ajouter la classe hidden (display none) sur la div des boutons filtres
     filtersButtons.classList.add('hidden');
 
-    //Création bouton d'édition (modifier avec icône) pour les classes editor-button
+    //Création des boutons d'édition
     const editorButtons = document.querySelectorAll('.editor-button');
-
     //Pour chaque bouton ayant la classe editor-button:
     editorButtons.forEach(editorButton => {
 

@@ -39,8 +39,8 @@ const openModal = function (event) {
 
 //Fonction fermer la modale
 const closeModal = function (event) {
+    event.preventDefault();
     if (currentModal !== null) {
-        event.preventDefault();
         //Masque la modale
         currentModal.style.display = 'none';
         currentModal.setAttribute('aria-hidden', true);
@@ -60,7 +60,7 @@ const stopPropagation = function (event) {
     event.stopPropagation();
 };
 
-//Fonction récupérer projet
+//Fonction récupérer projets
 let modaleGalleryCreated = false;
 //Fonction pour créer la gallerie des projets à modifier
 // Affiche les projets dans la modale d'édition
@@ -85,10 +85,10 @@ function displayModaleGallery() {
             modalWorkImage.crossOrigin = 'anonymous';
             const modalWorkEditTitle = document.createElement('a');
             modalWorkEditTitle.innerText = 'éditer';
-            //Création des icones supprimer et déplacer
+            //Création des icones pour supprimer et déplacer
             const modalDragIcon = document.createElement('i');
             modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right');
-            const modalDeleteIcon = document.createElement('i');
+            const modalDeleteIcon = document.createElement('button');
             modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
             modalDeleteIcon.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
 
@@ -155,7 +155,6 @@ function deleteProjectFromAPI(figureId) {
                 setTimeout(function () {
                     deleteMessageBox.style.display = "none";
                 }, 3000);
-                return response;
             } else {
                 if (response.status === 401) {
                     throw new Error(`Supression du projet non authorisée\n Veuillez vous connecter.`);
@@ -168,7 +167,7 @@ function deleteProjectFromAPI(figureId) {
                 }
             }
         })
-        .then(data => {
+        .then(() => {
             //traitement de la réponse de l'API
             figuresToDelete.forEach(figure => {
                 figure.remove();
@@ -214,7 +213,7 @@ function handleDeleteAllButton() {
         event.preventDefault();
         const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
 
-        if (confirm("ATTENTION : Etes-vous sûr.e de vouloir supprimer tous les projets ?")) {
+        if (confirm("ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?")) {
             allProjectsFigures.forEach(projectsFigure => {
                 let figureId = projectsFigure.getAttribute('data-figure-id');
                 figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
@@ -232,12 +231,12 @@ function handleDeleteAllButton() {
 
 
 
-//Fonction pour ouvrir la modale d'éditeur
+//Fonction pour ouvrir la modale d'édition
 function openEditorModal() {
     openModal.call(editorModalLink, event);
     displayModaleGallery();
     handleTrashIcons();
-    // handleDeleteAllButton();
+    handleDeleteAllButton();
 }
 
 
@@ -341,7 +340,6 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
                 setTimeout(function () {
                     addMessageBox.style.display = "none";
                 }, 3000);
-                return response.json(); //transforme API en JSON
             } else {
                 if (response.status === 400) {
                     throw new Error(`Erreur dans les données envoyées\n Veuillez vérifier les données du formulaire.`);
@@ -357,7 +355,7 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
                 }
             }
         })
-        .then(data => {
+        .then(() => {
             //traitement de la réponse de l'API
             addFigureToDOM(
                 document.querySelector('#modal-project-image-input'),
@@ -401,7 +399,7 @@ let validateButtonEventListenerAdded = false;
 if (token !== null) {
 
 
-    //Ouvrir modale editor
+    //Ouvrir modale d'édition
     editorModalLink.addEventListener('click', openEditorModal);
 
 
@@ -432,7 +430,7 @@ if (token !== null) {
         const image = event.target.files[0];
         // Vérification de la taille de l'image
         if (image.size > 4000000) {
-            alert("L'image est trop volumineuse (4 Mo maximum)");
+            alert("L'image est trop lourde (4mo maximum)");
             imageInput.value = "";
             uploadedImage.src = "";
             uploadedImage.alt = "";
@@ -469,6 +467,7 @@ if (token !== null) {
         const validateButton = document.querySelector('#modal-validate-button');
         validateButton.addEventListener('click', (event) => {
             event.preventDefault();
+            //Si les inputs sont correctement remplis
             if (validateButtonAllowed) {
                 //Soumettre formulaire
                 submitForm(
@@ -477,6 +476,7 @@ if (token !== null) {
                     document.querySelector('#modal-project-category')
                 );
             } else {
+                //Message indiqautn qu'il manque un des inputs
                 inputMissingMessage();
             }
         });

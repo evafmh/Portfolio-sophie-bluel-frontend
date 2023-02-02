@@ -1,5 +1,5 @@
 //Gestion de l'affichage des catégories
-//Récupération des catégories depuis le back end en JSON
+//Récupération des catégories depuis le backend en JSON
 fetch('http://localhost:5678/api/categories')
     .then(response => {
         if (response.ok) {
@@ -72,10 +72,13 @@ fetch('http://localhost:5678/api/categories')
 //Gestion du bouton 'Tous'
 const displayAllFilterButton = document.querySelector('#display-all-filter-button');
 displayAllFilterButton.addEventListener('click', function () {
+    //Sélection de toutes les figures de la gallerie
     const allWorks = document.querySelectorAll(' div.gallery figure[data-category-id]');
     allWorks.forEach(function (work) {
         work.style.display = 'block';
     });
+
+    //Gestion de l'affichage des boutons filtre
     displayAllFilterButton.classList.add('selected-filter-button');
     displayAllFilterButton.classList.remove('not-selected-filter-button');
     const allButtons = document.querySelectorAll(' div.filters-buttons button[data-category-id]');

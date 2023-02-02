@@ -491,7 +491,8 @@ footer li {
 	width: 100%;
 }
 
-#modal-gallery i {
+#modal-gallery i,
+#modal-gallery button {
 	background: #000000;
 	color: #FFFFFF;
 	border-radius: 2px;
@@ -502,7 +503,7 @@ footer li {
 	cursor: pointer;
 }
 
-#editor-modal-title {
+.modal-title {
 	font-weight: 400;
 	font-size: 26px;
 }
@@ -514,9 +515,18 @@ footer li {
 	background: none;
 }
 
-.modal-container input {
+#editor-modal-add-photo-button {
 	width: 237px;
 	font-size: 14px;
+	height: 36px;
+    font-weight: 700;
+	font-family: 'Syne';
+	color: white;
+	background-color: #1D6154;
+	margin: 2em auto;
+	text-align: center;
+	border-radius: 60px;
+	cursor: pointer;
 }
 
 #gallery-delete-modal-button {
@@ -592,6 +602,15 @@ footer li {
 
 #modal-validate-button {
 	background-color: #A7A7A7;
+	width: 237px;
+	font-size: 14px;
+	height: 36px;
+    font-weight: 700;
+	font-family: 'Syne';
+	color: white;
+	margin: 2em auto;
+	text-align: center;
+	border-radius: 60px;
 }
 
 .notification-message {
