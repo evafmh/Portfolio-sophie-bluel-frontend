@@ -49,6 +49,8 @@ const closeModal = function (event) {
         currentModal.removeEventListener('click', closeModal);
         currentModal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
         currentModal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
+        //Réinitialise le set qui stocke les id des figures à supprimer
+        figuresIdToDelete.clear();
     }
 };
 
@@ -180,6 +182,7 @@ function deleteProjectFromAPI(figureId) {
 }
 
 let trashIconsAdded = false;
+let deleteAllAdded = false;
 
 //Fonction pour gérer les icônes de suppression
 function handleTrashIcons() {
@@ -202,28 +205,30 @@ function handleTrashIcons() {
 }
 
 
-// //Fonction pour gérer le bouton Supprimer tout
-// function handleDeleteAllButton() {
-//     let deleteAllButton = document.getElementById('gallery-delete-modal-button');
-//     deleteAllButton.addEventListener('click', event => {
-//         event.preventDefault();
-//         const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
-//         allProjectsFigures.forEach(projectsFigure => {
-//             let figureId = projectsFigure.getAttribute('data-figure-id');
-//             figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
-//         });
-//         if (confirm("ATTENTION : Etes-vous sûr.e de vouloir supprimer tous les projets ?")) {
-//             deleteProjectFromAPI(figuresIdToDelete);
-//             allProjectsFigures.forEach(figure => {
-//                 figure.remove();
-//             });
-//             closeModal.call(editorModalLink, event);
-//         }
-//         else {
-//             figuresIdToDelete.clear();
-//         }
-//     });
-// }
+//Fonction pour gérer le bouton Supprimer tout
+let figuresIdToDelete = new Set(); //Stocke les Ids des figures à supprimer
+
+function handleDeleteAllButton() {
+    let deleteAllButton = document.getElementById('gallery-delete-modal-button');
+    deleteAllButton.addEventListener('click', event => {
+        event.preventDefault();
+        const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
+
+        if (confirm("ATTENTION : Etes-vous sûr.e de vouloir supprimer tous les projets ?")) {
+            allProjectsFigures.forEach(projectsFigure => {
+                let figureId = projectsFigure.getAttribute('data-figure-id');
+                figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
+            });
+            figuresIdToDelete.forEach(figureId => {
+                deleteProjectFromAPI(figureId);
+            });
+        } else {
+            return;
+        }
+    });
+    deleteAllAdded = true;
+}
+
 
 
 
@@ -425,6 +430,12 @@ if (token !== null) {
     imageInput.addEventListener('change', (event) => {
         // Récupération de l'image sélectionnée
         const image = event.target.files[0];
+        // Vérification de la taille de l'image
+        if (image.size > 4000000) {
+            alert("L'image est trop volumineuse (4 Mo maximum)");
+            this.value = "";
+            return;
+        }
         // Création d'un objet FileReader
         const reader = new FileReader();
         // Ajout d'un écouteur d'événement load sur l'objet FileReader

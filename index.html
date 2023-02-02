@@ -76,7 +76,7 @@
 				<div class="close-button-container">
 					<button class="js-modal-close fa-solid fa-xmark"></button>
 				</div>
-				<h3 class="modal-title">Galerie photo</h3>
+				<h3 class="modal-title" id="editor-modal-title">Galerie photo</h3>
 				<div id="modal-gallery"></div>
 				<div class="edit-notification-container" id="js-delete-notification-container">
 					<div class="notification-message" id="js-delete-notification"></div>
@@ -93,12 +93,12 @@
 					<button class="js-modal-close fa-solid fa-xmark"></button>
 					<button class="js-modal-previous fa-solid fa-arrow-left"></button>
 				</div>
-				<h3 class="modal-title">Ajout photo</h3>
+				<h3 class="modal-title" id="add-photo-modal-title">Ajout photo</h3>
 				<form action="#" method="post" id="add-photo-form">
 					<div class="modal-image-input-block">
 						<div class="image-input-logo fa-regular fa-image fa-7x"></div>
 						<label for="modal-project-image-input">+ Ajouter photo</label>
-						<input type="file" accept="image/jpeg, image/png" max="4000000" id="modal-project-image-input"
+						<input type="file" accept="image/jpeg, image/png" id="modal-project-image-input"
 							required>
 						<p>jpg, png : 4mo max</p>
 						<img id="js-modal-uploaded-image">
