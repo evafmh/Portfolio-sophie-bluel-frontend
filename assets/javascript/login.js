@@ -41,7 +41,7 @@ loginForm.addEventListener('submit', function (event) {
             //Stockage du token dans le localStorage
             localStorage.setItem('adminToken', token);
             // Rediriger l'utilisateur vers la page d'accueil édition
-            window.location.replace("./index.html");
+            window.location.replace('./index.html');
         })
 
         .catch(function (error) {

@@ -285,8 +285,8 @@ nav li .current-page {
 }
 
 .gallery img {
-	width: 100%;
-
+	height: 400px;
+	object-fit: cover;
 }
 
 #contact,
@@ -473,7 +473,6 @@ footer li {
 }
 
 #modal-gallery {
-	width: 85%;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 	grid-column-gap: 6px;

@@ -4,18 +4,16 @@ const token = localStorage.getItem('adminToken');
 const editorModalLink = document.querySelector('.js-modal-link');
 //Récupérer lien add-photo-modal
 const addPhotoModalLink = document.getElementById('editor-modal-add-photo-button');
-//Récupérer modale add-photo-modal
-const addPhotoModal = document.getElementById('add-photo-modal');
 //Récupérer formulaire modale add-photo-modal
 const addPhotoForm = document.getElementById('add-photo-form');
 //Récupérer div pour les notifications de supression
-const deleteMessage = document.getElementById("js-delete-notification");
+const deleteMessage = document.getElementById('js-delete-notification');
 //Récupérer container des notifications de suppression pour afficher/masquer
-const deleteMessageBox = document.getElementById("js-delete-notification-container");
+const deleteMessageBox = document.getElementById('js-delete-notification-container');
 //Récupérer div pour les notifications d'ajout
-const addMessage = document.getElementById("js-add-photo-notification");
+const addMessage = document.getElementById('js-add-photo-notification');
 //Récupérer container des notifications d'ajout pour afficher/masquer
-const addMessageBox = document.getElementById("js-add-photo-notification-container");
+const addMessageBox = document.getElementById('js-add-photo-notification-container');
 
 let currentModal = null;
 
@@ -143,7 +141,7 @@ function deleteProjectFromAPI(figureId) {
     fetch(`http://localhost:5678/api/works/${figureId}`, {
         method: 'DELETE',
         headers: {
-            "Authorization": `Bearer ${token}`
+            'Authorization': `Bearer ${token}`
         },
     })
         .then(function (response) {
@@ -151,9 +149,9 @@ function deleteProjectFromAPI(figureId) {
             if (response.ok) {
                 // Soumission réussie
                 deleteMessage.innerText = 'Suppression du projet réussie';
-                deleteMessageBox.style.display = "flex";
+                deleteMessageBox.style.display = 'flex';
                 setTimeout(function () {
-                    deleteMessageBox.style.display = "none";
+                    deleteMessageBox.style.display = 'none';
                 }, 3000);
             } else {
                 if (response.status === 401) {
@@ -163,7 +161,7 @@ function deleteProjectFromAPI(figureId) {
                     throw new Error(`Supression impossible\n Erreur interne du serveur. Veuillez essayer ultérieurement.`);
                 }
                 else {
-                    throw new Error(`Erreur dans la suppression du projet`);
+                    throw new Error('Erreur dans la suppression du projet');
                 }
             }
         })
@@ -191,7 +189,7 @@ function handleTrashIcons() {
         trashIcons.forEach(icon => {
             icon.addEventListener('click', event => {
                 event.preventDefault();
-                if (confirm("Etes-vous sûr.e de vouloir supprimer cet élément ?")) {
+                if (confirm('Etes-vous sûr.e de vouloir supprimer cet élément ?')) {
                     let figureId = icon.getAttribute('data-figure-id');
                     deleteProjectFromAPI(figureId);
                 } else {
@@ -209,34 +207,25 @@ let figuresIdToDelete = new Set(); //Stocke les Ids des figures à supprimer
 
 function handleDeleteAllButton() {
     let deleteAllButton = document.getElementById('gallery-delete-modal-button');
-    deleteAllButton.addEventListener('click', event => {
-        event.preventDefault();
-        const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
+    if (!deleteAllAdded) {
+        deleteAllButton.addEventListener('click', event => {
+            event.preventDefault();
+            const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
 
-        if (confirm("ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?")) {
-            allProjectsFigures.forEach(projectsFigure => {
-                let figureId = projectsFigure.getAttribute('data-figure-id');
-                figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
-            });
-            figuresIdToDelete.forEach(figureId => {
-                deleteProjectFromAPI(figureId);
-            });
-        } else {
-            return;
-        }
-    });
-    deleteAllAdded = true;
-}
-
-
-
-
-//Fonction pour ouvrir la modale d'édition
-function openEditorModal() {
-    openModal.call(editorModalLink, event);
-    displayModaleGallery();
-    handleTrashIcons();
-    handleDeleteAllButton();
+            if (confirm('ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?')) {
+                allProjectsFigures.forEach(projectsFigure => {
+                    let figureId = projectsFigure.getAttribute('data-figure-id');
+                    figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
+                });
+                figuresIdToDelete.forEach(figureId => {
+                    deleteProjectFromAPI(figureId);
+                });
+            } else {
+                return;
+            }
+        });
+        deleteAllAdded = true;
+    }
 }
 
 
@@ -255,8 +244,8 @@ function createCategorySelect() {
 
     //Créer une option vide par défaut
     const emptyOption = document.createElement('option');
-    emptyOption.value = "";
-    emptyOption.innerText = "";
+    emptyOption.value = '';
+    emptyOption.innerText = '';
     emptyOption.selected = true;
     projectCategorySelect.appendChild(emptyOption);
 
@@ -278,36 +267,36 @@ function createCategorySelect() {
 //Fonction vérifier que les inputs requis sont remplis dans add-photo-modal
 let validateButtonAllowed = false;
 
-function checkValidateButton(validateButton, imageInput, projectTitleInput, projectCategorySelect) {
-    if (imageInput.value && projectTitleInput.value && projectCategorySelect.value) {
+function checkValidateButton(validateButton, image, title, category) {
+    if (image.value && title.value && category.value) {
         //Couleur bouton Valider gris passe au vert lorsque les éléments required sont remplis
-        validateButton.style.backgroundColor = "#1D6154";
+        validateButton.style.backgroundColor = '#1D6154';
         //On active la possibilité de soumettre le formulaire
         validateButtonAllowed = true;
     } else {
-        validateButton.style.backgroundColor = "#A7A7A7";
+        validateButton.style.backgroundColor = '#A7A7A7';
         validateButtonAllowed = false;
     }
 }
 
 
 //Fonction envoi des données au DOM
-function addFigureToDOM(imageInput, projectTitleInput, projectCategorySelect) {
+function addFigureToDOM(image, title, category) {
     // Utiliser les arguments pour créer la figure avec les données soumises
     // Créer la figure avec les données récupérées
     const newFigure = document.createElement('figure');
-    newFigure.setAttribute('data-category-id', projectCategorySelect.selectedOptions[0].value);
+    newFigure.setAttribute('data-category-id', category.selectedOptions[0].value);
     const img = document.createElement('img');
     // Assigne la source de l'image uploadée à l'élément img
-    img.src = URL.createObjectURL(imageInput.files[0]);
-    img.alt = projectTitleInput.value;
+    img.src = URL.createObjectURL(image.files[0]);
+    img.alt = title.value;
     img.setAttribute('crossorigin', 'anonymous');
     const figcaption = document.createElement('figcaption');
-    figcaption.innerHTML = projectTitleInput.value;
+    figcaption.innerHTML = title.value;
     newFigure.appendChild(img);
     newFigure.appendChild(figcaption);
 
-    // Ajouter la figure à la div "gallery"
+    // Ajouter la figure à la div 'gallery'
     const gallery = document.querySelector('.gallery');
     gallery.appendChild(newFigure);
 }
@@ -327,7 +316,7 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
     fetch('http://localhost:5678/api/works', {
         method: 'POST',
         headers: {
-            "Authorization": `Bearer ${token}`
+            'Authorization': `Bearer ${token}`
         },
         body: formData
     })
@@ -336,9 +325,9 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
             if (response.ok) {
                 // Soumission réussie
                 addMessage.innerText = 'Ajout du projet réussi';
-                addMessageBox.style.display = "flex";
+                addMessageBox.style.display = 'flex';
                 setTimeout(function () {
-                    addMessageBox.style.display = "none";
+                    addMessageBox.style.display = 'none';
                 }, 3000);
             } else {
                 if (response.status === 400) {
@@ -357,18 +346,16 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
         })
         .then(() => {
             //traitement de la réponse de l'API
-            addFigureToDOM(
-                document.querySelector('#modal-project-image-input'),
-                document.querySelector('#modal-project-title'),
-                document.querySelector('#modal-project-category')
-            );
+            addFigureToDOM(imageInput, projectTitleInput, projectCategorySelect);
             modaleGalleryCreated = false;
             // Remettre les inputs à zéro
-            const uploadedImage = document.querySelector('#js-modal-uploaded-image');
+            imageInput.value = '';
+            projectTitleInput.value = '';
+            projectCategorySelect.value = '';
+            //Supprimer l'image uploadée
+            const uploadedImage = imageInput.parentNode.querySelector('#js-modal-uploaded-image');
             const imageInputBlock = uploadedImage.parentNode;
             imageInputBlock.removeChild(uploadedImage);
-            document.querySelector('#modal-project-title').value = '';
-            document.querySelector('#modal-project-category').value = '';
             //Afficher les autres éléments du block image-input
             const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
             elements.forEach(element => element.style.display = 'block');
@@ -379,13 +366,13 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
             addMessageBox.style.display = 'flex';
         });
 
-};
+}
 
 
 function inputMissingMessage() {
     let missingInpuNotification = document.createElement('p');
-    missingInpuNotification.classList.add("notification-message");
-    missingInpuNotification.innerHTML = "Veuillez ajouter le fichier, le titre et la catégorie avant de valider";
+    missingInpuNotification.classList.add('notification-message');
+    missingInpuNotification.innerHTML = 'Veuillez ajouter le fichier, le titre et la catégorie avant de valider';
     addPhotoForm.appendChild(missingInpuNotification);
     setTimeout(function () {
         addPhotoForm.removeChild(missingInpuNotification);
@@ -400,14 +387,17 @@ if (token !== null) {
 
 
     //Ouvrir modale d'édition
-    editorModalLink.addEventListener('click', openEditorModal);
-
-
+    editorModalLink.addEventListener('click', function (event) {
+        openModal.call(event.currentTarget, event);
+        displayModaleGallery();
+        handleTrashIcons();
+        handleDeleteAllButton();
+    });
 
     //Ouvrir modale add-photo
     addPhotoModalLink.addEventListener('click', function (event) {
         closeModal(event);
-        openModal.call(addPhotoModalLink, event); //openModal lorsqu'on clique sur addPhotoModalLink
+        openModal.call(event.currentTarget, event); //openModal lorsqu'on clique sur addPhotoModalLink
         //Appeler la fonction pour créer la liste déroulante lorsque le script est exécuté
         createCategorySelect();
     });
@@ -420,19 +410,23 @@ if (token !== null) {
     });
 
 
+    // Récupération des inputs
+    const projectImageInput = document.querySelector('#modal-project-image-input');
+    const projectTitleInput = document.querySelector('#modal-project-title');
+    const projectCategoryInput = document.querySelector('#modal-project-category');
+    //Récupération du bouton pour soumettre un projet
+    const validateButton = document.querySelector('#modal-validate-button');
+
+
     //Charger une image
-    // Récupération des éléments de la page
-    const imageInput = document.querySelector('#modal-project-image-input');
     // Ajout d'un écouteur d'événement change sur l'input d'image
-    imageInput.addEventListener('change', (event) => {
+    projectImageInput.addEventListener('change', (event) => {
         // Récupération de l'image sélectionnée
         const image = event.target.files[0];
         // Vérification de la taille de l'image
         if (image.size > 4000000) {
-            alert("L'image est trop lourde (4mo maximum)");
-            imageInput.value = "";
-            uploadedImage.src = "";
-            uploadedImage.alt = "";
+            alert(`L'image est trop lourde (4mo maximum)`);
+            projectImageInput.value = '';
             return;
         }
         // Création d'un objet FileReader
@@ -460,28 +454,20 @@ if (token !== null) {
 
     //Vérifier si les éléments requis sont remplis pour pouvoir valider
     addPhotoForm.addEventListener('input', () => checkValidateButton(
-        document.querySelector('#modal-validate-button'),
-        document.querySelector('#modal-project-image-input'),
-        document.querySelector('#modal-project-title'),
-        document.querySelector('#modal-project-category')
+        validateButton, projectImageInput, projectTitleInput, projectCategoryInput
     ));
 
     //Soumettre le formulaire 
     //On active la possibilité de soumettre le formulaire
     if (!validateButtonEventListenerAdded) {
-        const validateButton = document.querySelector('#modal-validate-button');
         validateButton.addEventListener('click', (event) => {
             event.preventDefault();
             //Si les inputs sont correctement remplis
             if (validateButtonAllowed) {
                 //Soumettre formulaire
-                submitForm(
-                    document.querySelector('#modal-project-image-input'),
-                    document.querySelector('#modal-project-title'),
-                    document.querySelector('#modal-project-category')
-                );
+                submitForm(projectImageInput, projectTitleInput, projectCategoryInput);
             } else {
-                //Message indiqautn qu'il manque un des inputs
+                //Message indique qu'il manque un des inputs
                 inputMissingMessage();
             }
         });
