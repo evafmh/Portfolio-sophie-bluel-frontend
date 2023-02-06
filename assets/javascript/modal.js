@@ -15,6 +15,14 @@ const addMessage = document.getElementById('js-add-photo-notification');
 //Récupérer container des notifications d'ajout pour afficher/masquer
 const addMessageBox = document.getElementById('js-add-photo-notification-container');
 
+// Récupération des inputs
+const projectImageInput = document.querySelector('#modal-project-image-input');
+const projectTitleInput = document.querySelector('#modal-project-title');
+const projectCategoryInput = document.querySelector('#modal-project-category');
+//Récupération du bouton pour soumettre un projet
+const validateButton = document.querySelector('#modal-validate-button');
+
+
 let currentModal = null;
 
 //Fonction ouvrir la modale 
@@ -49,6 +57,11 @@ const closeModal = function (event) {
         currentModal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
         //Réinitialise le set qui stocke les id des figures à supprimer
         figuresIdToDelete.clear();
+        // Remettre à zéro la modale add-photo si c'est celle qui est ouverte
+        console.log(currentModal);
+        if (currentModal.id === 'add-photo-modal') {
+            resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
+        }
     }
 };
 
@@ -60,6 +73,7 @@ const stopPropagation = function (event) {
 
 //Fonction récupérer projets
 let modaleGalleryCreated = false;
+
 //Fonction pour créer la gallerie des projets à modifier
 // Affiche les projets dans la modale d'édition
 function displayModaleGallery() {
@@ -279,6 +293,22 @@ function checkValidateButton(validateButton, image, title, category) {
     }
 }
 
+//Remettre à zero la modale add-photo
+function resetAddPhotoModal(image, title, category) {
+    // Remettre les inputs à zéro
+    image.value = '';
+    title.value = '';
+    category.value = '';
+    //Supprimer l'image uploadée
+    const uploadedImage = image.parentNode.querySelector('#js-modal-uploaded-image');
+    if (uploadedImage) {
+        const imageInputBlock = uploadedImage.parentNode;
+        imageInputBlock.removeChild(uploadedImage);
+    }
+    //Afficher les autres éléments du block image-input
+    const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
+    elements.forEach(element => element.style.display = 'block');
+}
 
 //Fonction envoi des données au DOM
 function addFigureToDOM(image, title, category) {
@@ -348,17 +378,7 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
             //traitement de la réponse de l'API
             addFigureToDOM(imageInput, projectTitleInput, projectCategorySelect);
             modaleGalleryCreated = false;
-            // Remettre les inputs à zéro
-            imageInput.value = '';
-            projectTitleInput.value = '';
-            projectCategorySelect.value = '';
-            //Supprimer l'image uploadée
-            const uploadedImage = imageInput.parentNode.querySelector('#js-modal-uploaded-image');
-            const imageInputBlock = uploadedImage.parentNode;
-            imageInputBlock.removeChild(uploadedImage);
-            //Afficher les autres éléments du block image-input
-            const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
-            elements.forEach(element => element.style.display = 'block');
+            resetAddPhotoModal(imageInput, projectTitleInput, projectCategorySelect);
         })
         .catch(error => {
             //traitement de l'erreur
@@ -402,20 +422,16 @@ if (token !== null) {
         createCategorySelect();
     });
 
+
     //Revenir à la modale précédente
     const modalPreviousButton = document.querySelector('.js-modal-previous');
     modalPreviousButton.addEventListener('click', function (event) {
         closeModal(event);
         openModal.call(editorModalLink, event);
+        displayModaleGallery();
+        handleTrashIcons();
+        handleDeleteAllButton();
     });
-
-
-    // Récupération des inputs
-    const projectImageInput = document.querySelector('#modal-project-image-input');
-    const projectTitleInput = document.querySelector('#modal-project-title');
-    const projectCategoryInput = document.querySelector('#modal-project-category');
-    //Récupération du bouton pour soumettre un projet
-    const validateButton = document.querySelector('#modal-validate-button');
 
 
     //Charger une image
@@ -456,6 +472,7 @@ if (token !== null) {
     addPhotoForm.addEventListener('input', () => checkValidateButton(
         validateButton, projectImageInput, projectTitleInput, projectCategoryInput
     ));
+
 
     //Soumettre le formulaire 
     //On active la possibilité de soumettre le formulaire
