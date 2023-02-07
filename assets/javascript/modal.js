@@ -2,9 +2,11 @@
 const token = localStorage.getItem('adminToken');
 //Récupérer lien editor-modal
 const editorModalLink = document.querySelector('.js-modal-link');
+//Récupérer galerie de la modale editor-modal
+const modalGallery = document.getElementById('modal-gallery');
 //Récupérer lien add-photo-modal
 const addPhotoModalLink = document.getElementById('editor-modal-add-photo-button');
-//Récupérer formulaire modale add-photo-modal
+//Récupérer formulaire de la modale add-photo-modal
 const addPhotoForm = document.getElementById('add-photo-form');
 //Récupérer div pour les notifications de supression
 const deleteMessage = document.getElementById('js-delete-notification');
@@ -58,7 +60,6 @@ const closeModal = function (event) {
         //Réinitialise le set qui stocke les id des figures à supprimer
         figuresIdToDelete.clear();
         // Remettre à zéro la modale add-photo si c'est celle qui est ouverte
-        console.log(currentModal);
         if (currentModal.id === 'add-photo-modal') {
             resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
         }
@@ -71,81 +72,67 @@ const stopPropagation = function (event) {
     event.stopPropagation();
 };
 
+
+//Fonction pour ajouter une figure à la galerie de la modale
+function addFigureToModalGallery(galleryFigure) {
+    const modalWorkFigure = document.createElement('figure');
+    modalWorkFigure.dataset.categoryId = galleryFigure.getAttribute('data-category-id');
+    modalWorkFigure.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
+    const modalWorkImage = document.createElement('img');
+    modalWorkImage.src = galleryFigure.querySelector('img').src;
+    modalWorkImage.alt = galleryFigure.querySelector('img').alt;
+    modalWorkImage.crossOrigin = 'anonymous';
+    const modalWorkEditTitle = document.createElement('a');
+    modalWorkEditTitle.innerText = 'éditer';
+    //Création des icones pour supprimer et déplacer
+    const modalDragIcon = document.createElement('i');
+    modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right');
+    const modalDeleteIcon = document.createElement('button');
+    modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
+    modalDeleteIcon.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
+    //Rattachement des balises au DOM pour afficher les figures
+    //Rattachement de la balise figure à la section gallery dans la modale
+    modalGallery.appendChild(modalWorkFigure);
+    //Rattachement des balises images, titre et icones à la modalWorkFigure (balise figure)
+    modalWorkFigure.appendChild(modalWorkImage);
+    modalWorkFigure.appendChild(modalDragIcon);
+    modalWorkFigure.appendChild(modalDeleteIcon);
+    modalWorkFigure.appendChild(modalWorkEditTitle);
+    // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
+    modalWorkFigure.addEventListener('mouseout', function (event) {
+        if (event.target.tagName === 'IMG') {
+            // Récupérer l'icône suivant l'image ciblée
+            // const modalDragIcon = event.target.nextElementSibling;
+            modalDragIcon.style.display = 'none';
+        }
+    });
+    // Ajouter un gestionnaire d'événements pour l'événement "mouseover"
+    modalWorkFigure.addEventListener('mouseover', function (event) {
+        if (event.target.tagName === 'IMG') {
+            // Récupérer l'icône suivant l'image ciblée
+            // const modalDragIcon = event.target.nextElementSibling;
+            modalDragIcon.style.display = 'block';
+            modalDragIcon.style.right = '27px';
+        }
+    });
+}
+
 //Fonction récupérer projets
 let modaleGalleryCreated = false;
-
-//Fonction pour créer la gallerie des projets à modifier
-// Affiche les projets dans la modale d'édition
+//Fonction pour créer la galerie des projets dans la modale d'édition
 function displayModaleGallery() {
     if (modaleGalleryCreated) {
         // Afficher la galerie sans la recréer
         return;
     } else {
-        //Récupération de l'élément modal-gallery du DOM qui accueillera les projets
-        const modalGallery = document.getElementById('modal-gallery');
-        modalGallery.innerHTML = '';
         // Récupérer les boutons qui ont un attribut data-category-id
         const allGalleryFigures = document.querySelectorAll('figure[data-category-id]');
         // Créer les figures pour chaque projet
-        allGalleryFigures.forEach(function (galleryFigure) {
-            const modalWorkFigure = document.createElement('figure');
-            modalWorkFigure.dataset.categoryId = galleryFigure.getAttribute('data-category-id');
-            modalWorkFigure.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
-            const modalWorkImage = document.createElement('img');
-            modalWorkImage.src = galleryFigure.querySelector('img').src;
-            modalWorkImage.alt = galleryFigure.querySelector('img').alt;
-            modalWorkImage.crossOrigin = 'anonymous';
-            const modalWorkEditTitle = document.createElement('a');
-            modalWorkEditTitle.innerText = 'éditer';
-            //Création des icones pour supprimer et déplacer
-            const modalDragIcon = document.createElement('i');
-            modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right');
-            const modalDeleteIcon = document.createElement('button');
-            modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
-            modalDeleteIcon.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
-
-
-            //Rattachement des balises au DOM pour afficher les figures
-            //Rattachement de la balise figure à la section gallery dans la modale
-            modalGallery.appendChild(modalWorkFigure);
-            //Rattachement des balises images, titre et icones à la modalWorkFigure (balise figure)
-            modalWorkFigure.appendChild(modalWorkImage);
-            modalWorkFigure.appendChild(modalDragIcon);
-            modalWorkFigure.appendChild(modalDeleteIcon);
-            modalWorkFigure.appendChild(modalWorkEditTitle);
-
-        });
+        allGalleryFigures.forEach(addFigureToModalGallery);
 
         modaleGalleryCreated = true;
-
     }
-
-
-    const modalGallery = document.querySelector('#modal-gallery');
-
-    // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
-    modalGallery.addEventListener('mouseout', function (event) {
-        if (event.target.tagName === 'IMG') {
-            // Récupérer l'icône suivant l'image ciblée
-            const modalDragIcon = event.target.nextElementSibling;
-            modalDragIcon.style.display = 'none';
-        }
-    });
-
-    // Ajouter un gestionnaire d'événements pour l'événement "mouseover"
-    modalGallery.addEventListener('mouseover', function (event) {
-        if (event.target.tagName === 'IMG') {
-            // Récupérer l'icône suivant l'image ciblée
-            const modalDragIcon = event.target.nextElementSibling;
-            modalDragIcon.style.display = 'block';
-            modalDragIcon.style.right = '27px';
-        }
-    });
-
-
 }
-
-
 
 
 //Fonction pour supprimer les figures de l'API
@@ -329,6 +316,8 @@ function addFigureToDOM(image, title, category) {
     // Ajouter la figure à la div 'gallery'
     const gallery = document.querySelector('.gallery');
     gallery.appendChild(newFigure);
+    //Ajouter la figure à la modale
+    addFigureToModalGallery(newFigure);
 }
 
 
@@ -377,7 +366,6 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
         .then(() => {
             //traitement de la réponse de l'API
             addFigureToDOM(imageInput, projectTitleInput, projectCategorySelect);
-            modaleGalleryCreated = false;
             resetAddPhotoModal(imageInput, projectTitleInput, projectCategorySelect);
         })
         .catch(error => {
@@ -428,7 +416,6 @@ if (token !== null) {
     modalPreviousButton.addEventListener('click', function (event) {
         closeModal(event);
         openModal.call(editorModalLink, event);
-        displayModaleGallery();
         handleTrashIcons();
         handleDeleteAllButton();
     });
