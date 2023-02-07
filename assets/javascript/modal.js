@@ -37,6 +37,9 @@ const openModal = function (event) {
     currentModal.setAttribute('aria-hidden', false);
     currentModal.setAttribute('aria-modal', true);
 
+    //Empêcher la page de défiler lorsque la modale est affichée
+    document.body.classList.add('js-modal-stop-scrolling');
+
     //Clic sur la modale
     currentModal.addEventListener('click', closeModal);
     //Clic sur le bouton fermer modale
@@ -63,6 +66,8 @@ const closeModal = function (event) {
         if (currentModal.id === 'add-photo-modal') {
             resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
         }
+        //Authorize à nouveau el défilement de la page
+        document.body.classList.remove('js-modal-stop-scrolling');
     }
 };
 
@@ -309,7 +314,7 @@ function addFigureToDOM(image, title, category) {
     img.alt = title.value;
     img.setAttribute('crossorigin', 'anonymous');
     const figcaption = document.createElement('figcaption');
-    figcaption.innerHTML = title.value;
+    figcaption.textContent = title.value;
     newFigure.appendChild(img);
     newFigure.appendChild(figcaption);
 
@@ -380,7 +385,7 @@ function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
 function inputMissingMessage() {
     let missingInpuNotification = document.createElement('p');
     missingInpuNotification.classList.add('notification-message');
-    missingInpuNotification.innerHTML = 'Veuillez ajouter le fichier, le titre et la catégorie avant de valider';
+    missingInpuNotification.textContent = 'Veuillez ajouter le fichier, le titre et la catégorie avant de valider';
     addPhotoForm.appendChild(missingInpuNotification);
     setTimeout(function () {
         addPhotoForm.removeChild(missingInpuNotification);

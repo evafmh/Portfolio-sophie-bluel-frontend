@@ -445,7 +445,6 @@ footer li {
 	top: 0;
 	left: 0;
 	background: rgb(0, 0, 0, 0.3);
-	display: none;
 }
 
 .modal-container {
@@ -456,9 +455,14 @@ footer li {
 	border-radius: 10px;
 	width: 570px;
 	max-width: 75%;
+	max-height: 80%;
 	padding: 30px;
-	overflow: auto;
+	overflow-y: auto;
 }
+
+.js-modal-stop-scrolling {
+	overflow: hidden;
+  }
 
 .close-button-container {
 	display: flex;
@@ -523,6 +527,7 @@ footer li {
 	color: white;
 	background-color: #1D6154;
 	margin: 2em auto;
+	padding: 10px 0;
 	text-align: center;
 	border-radius: 60px;
 	cursor: pointer;
