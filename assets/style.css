@@ -381,11 +381,15 @@ footer li {
 
 
 .hidden {
-	display: none;
+	display: none!important;
 }
 
 .flex-display {
 	display: flex;
+}
+
+.block-display {
+	display: block;
 }
 
 #introduction figure div {
@@ -604,6 +608,10 @@ footer li {
 	color: #444444;
 	font-size: 10px;
 	padding-bottom: 20px;
+}
+
+.modal-image-input-block img.uploaded-image-display {
+	height: 180px;
 }
 
 .modal-info-input-block {

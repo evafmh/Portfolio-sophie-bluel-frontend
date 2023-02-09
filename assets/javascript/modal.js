@@ -259,20 +259,54 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     }
 
     //Fonction vérifier que les inputs requis sont remplis dans add-photo-modal
-    let validateButtonAllowed = false;
-
     function checkValidateButton(validateButton, image, title, category) {
+        let allInputsAreFilled = false;
         if (image.value && title.value && category.value) {
             //Couleur bouton Valider gris passe au vert lorsque les éléments required sont remplis
             validateButton.classList.add('green-button');
             validateButton.classList.remove('gray-button');
-            //On active la possibilité de soumettre le formulaire
-            validateButtonAllowed = true;
+            allInputsAreFilled = true;
         } else {
             validateButton.classList.remove('green-button');
             validateButton.classList.add('gray-button');
-            validateButtonAllowed = false;
         }
+        return allInputsAreFilled;
+    }
+
+
+    function checkInputFormat(title, category) {
+
+        let titleIsValid = false;
+        let categoryIsValid = false;
+
+        //Vérification input titre
+        if (title.value) {
+            var value = title.value;
+            var regex = /^[A-Z0-9][a-zA-Z0-9- "&àâäéèêëîïôöùûü]{0,49}$/;
+            if (!regex.test(value)) {
+                titleIsValid = false;
+                console.log('titre non valide');
+            } else {
+                console.log('titre validé !!!')
+                titleIsValid = true;
+            }
+        }
+
+        if (category.value) {
+            //Vérification input catégorie
+            var value = category.value;
+            var regex = /^\d+$/;
+            if (!regex.test(value)) {
+                categoryIsValid = false;
+                console.log('catégorie non validée');
+            } else {
+                categoryIsValid = true;
+                console.log('catégorie validée !!!');
+            }
+        }
+
+        return { titleIsValid, categoryIsValid };
+
     }
 
     //Remettre à zero la modale add-photo
@@ -289,7 +323,10 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         }
         //Afficher les autres éléments du block image-input
         const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
-        elements.forEach(element => element.style.display = 'block');
+        elements.forEach(element => {
+            element.classList.add('block-display');
+            element.classList.remove('hidden');
+        });
         //Afficher validate Button en gris
         validateButton.classList.add('gray-button');
         validateButton.classList.remove('green-button');
@@ -382,15 +419,12 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     function inputMissingMessage() {
         let missingInpuNotification = document.createElement('p');
         missingInpuNotification.classList.add('notification-message');
-        missingInpuNotification.textContent = 'Veuillez ajouter le fichier, le titre et la catégorie avant de valider';
+        missingInpuNotification.textContent = `Veuillez ajouter l'image, le titre et la catégorie avant de valider`;
         addPhotoForm.appendChild(missingInpuNotification);
         setTimeout(function () {
             addPhotoForm.removeChild(missingInpuNotification);
         }, 3000);
     }
-
-    let validateButtonEventListenerAdded = false;
-
 
     //Vérification de la valeur du token avant d'afficher modale sur la page en mode édition
     if (token !== null) {
@@ -449,13 +483,16 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 // Attribution de la source de l'image uploadée à l'image à afficher
                 uploadedImage.src = e.target.result;
                 uploadedImage.alt = image.name;
-                uploadedImage.style.height = '180px';
+                uploadedImage.classList.add('uploaded-image-display');
                 //Ajout image uploadée au bloc
                 const imageInputBlock = document.querySelector('.modal-image-input-block');
                 imageInputBlock.appendChild(uploadedImage);
                 //Masquer les autres éléments du block image-input
                 const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
-                elements.forEach(element => element.style.display = 'none');
+                elements.forEach(element => {
+                    element.classList.add('hidden');
+                    element.classList.remove('block-display');
+                });
             };
             // Lecture de l'image sélectionnée en tant que données binaires (DataURL)
             reader.readAsDataURL(image);
@@ -470,22 +507,43 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
         //Soumettre le formulaire 
         //On active la possibilité de soumettre le formulaire
-        if (!validateButtonEventListenerAdded) {
-            validateButton.addEventListener('click', (event) => {
-                event.preventDefault();
-                //Si les inputs sont correctement remplis
-                if (validateButtonAllowed) {
-                    //Soumettre formulaire
-                    submitForm(projectImageInput, projectTitleInput, projectCategoryInput);
-                } else {
-                    //Message indique qu'il manque un des inputs
-                    inputMissingMessage();
+        validateButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            let formatCheckResult = checkInputFormat(projectTitleInput, projectCategoryInput);
+            console.log(formatCheckResult);
+            let inputsAreFilledResult = checkValidateButton(validateButton, projectImageInput, projectTitleInput, projectCategoryInput);
+            console.log(inputsAreFilledResult);
+            console.log(!inputsAreFilledResult);
+            //Si les inputs sont tous correctement remplis
+            if (inputsAreFilledResult && formatCheckResult.titleIsValid && formatCheckResult.categoryIsValid) {
+                //Soumettre formulaire
+                submitForm(projectImageInput, projectTitleInput, projectCategoryInput);
+            }
+            //S'il manque un input
+            else if (!inputsAreFilledResult) {
+                //Message indique qu'il manque un ou plusieurs inputs
+                inputMissingMessage();
+                console.log('message missing input veuillez remplir tous les inputs');
+            }
+            //Si un format est incorrect
+            else if (!formatCheckResult.titleIsValid || !formatCheckResult.categoryIsValid) {
+                //Si le format du titre est incorrect
+                if (!formatCheckResult.titleIsValid) {
+                    //Message indique que le format du titre n'est pas correct
+                    console.log('message user problème format titre');
                 }
-            });
-            validateButtonEventListenerAdded = true;
-        }
+                //Si le format de la catégorie est incorrecte
+                if (!formatCheckResult.categoryIsValid) {
+                    //Message indique que le format de la catégorie n'est pas correct
+                    console.log('message user problème format catégorie');
+                }
+            }
+            //Autre problème
+            else {
+                console.log('message générique problème veuillez vérifier les données du formulaire');
+            }
 
-
+        });
     }
 
 });
