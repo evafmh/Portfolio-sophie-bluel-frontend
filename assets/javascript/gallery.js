@@ -36,12 +36,14 @@ const fetchCategoriesReady = new Promise((resolve) => {
 
                         //Afficher chacun des éléments correspondants au bouton filtre sélectionné
                         worksListToDisplay.forEach(function (work) {
-                            work.style.display = 'block';
+                            work.classList.add('block-display');
+                            work.classList.remove('hidden');
                         });
 
                         //Masquer les éléments de catégories différentes du bouton filtre sélectionné
                         worksListToHide.forEach(function (work) {
-                            work.style.display = 'none';
+                            work.classList.remove('block-display');
+                            work.classList.add('hidden');
                         });
 
                         const FilterButtonSelected = document.querySelector('div.filters-buttons button[data-category-id="' + selectedCategory + '"]');
@@ -70,7 +72,7 @@ const fetchCategoriesReady = new Promise((resolve) => {
         })
         .catch(error => {
             //gestion des erreurs
-            document.querySelector('.filters-buttons').innerText = error.message;
+            document.querySelector('.filters-buttons').textContent = error.message;
         });
 });
 
@@ -81,7 +83,8 @@ displayAllFilterButton.addEventListener('click', function () {
     //Sélection de toutes les figures de la gallerie
     const allWorks = document.querySelectorAll(' div.gallery figure[data-category-id]');
     allWorks.forEach(function (work) {
-        work.style.display = 'block';
+        work.classList.add('block-display');
+        work.classList.remove('hidden');
     });
 
     //Gestion de l'affichage des boutons filtre
@@ -117,7 +120,7 @@ const fetchGalleryReady = new Promise((resolve) => {
                     workImage.alt = data[i].title;
                     workImage.crossOrigin = 'anonymous';
                     const workName = document.createElement('figcaption');
-                    workName.innerText = data[i].title;
+                    workName.textContent = data[i].title;
                     const workFigure = document.createElement('figure');
                     workFigure.dataset.categoryId = data[i].categoryId;
                     workFigure.dataset.figureId = data[i].id;
@@ -138,11 +141,11 @@ const fetchGalleryReady = new Promise((resolve) => {
             })
             .catch(error => {
                 //gestion des erreurs
-                document.querySelector('.gallery').innerText = error.message;
+                document.querySelector('.gallery').textContent = error.message;
             });
     }
 
 });
 
-export {fetchCategoriesReady, fetchGalleryReady};
+export { fetchCategoriesReady, fetchGalleryReady };
 

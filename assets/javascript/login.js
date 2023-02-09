@@ -46,7 +46,7 @@ loginForm.addEventListener('submit', function (event) {
 
         .catch(function (error) {
             // Afficher un message d'erreur
-            document.getElementById('login-error-message').innerText = error.message;
+            document.getElementById('login-error-message').textContent = error.message;
         });
 
 });

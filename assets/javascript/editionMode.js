@@ -20,7 +20,7 @@ if (token !== null) {
 
         //Création d'un élément span pour la caption du bouton
         const editorCaption = document.createElement('span');
-        editorCaption.innerText = 'modifier';
+        editorCaption.textContent = 'modifier';
 
         //Insertion de l'icône et de la caption dans chaque bouton d'édition
         editorButton.appendChild(editorIcon);
@@ -30,7 +30,7 @@ if (token !== null) {
 
     //Remplacer login par logout dans la navigation
     const loginButton = document.getElementById('login-nav-button');
-    loginButton.innerText = 'logout';
+    loginButton.textContent = 'logout';
 
     //Le bouton logout doit déconnecter du mode édition (suppr. Token)
     loginButton.addEventListener('click', function (event) {
@@ -52,11 +52,11 @@ if (token !== null) {
 
     //Création d'un élément span pour la caption du bouton
     const editorCaption = document.createElement('span');
-    editorCaption.innerText = 'Mode édition';
+    editorCaption.textContent = 'Mode édition';
 
     //Création d'un bouton pour publier les changements
     const editorPublish = document.createElement('button');
-    editorPublish.innerText = 'publier les changements';
+    editorPublish.textContent = 'publier les changements';
     editorPublish.id = 'apply-gallery-edits-button';
 
     //Insertion icône, caption et bouton de publication dans le bandeau d'édition

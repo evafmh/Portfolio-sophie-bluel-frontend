@@ -63,8 +63,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             currentModal.removeEventListener('click', closeModal);
             currentModal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
             currentModal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
-            //Réinitialise le set qui stocke les id des figures à supprimer
-            figuresIdToDelete.clear();
             // Remettre à zéro la modale add-photo si c'est celle qui est ouverte
             if (currentModal.id === 'add-photo-modal') {
                 resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
@@ -91,7 +89,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         modalWorkImage.alt = galleryFigure.querySelector('img').alt;
         modalWorkImage.crossOrigin = 'anonymous';
         const modalWorkEditTitle = document.createElement('a');
-        modalWorkEditTitle.innerText = 'éditer';
+        modalWorkEditTitle.textContent = 'éditer';
         //Création des icones pour supprimer et déplacer
         const modalDragIcon = document.createElement('i');
         modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right', 'hidden');
@@ -139,7 +137,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 // Traiter la réponse
                 if (response.ok) {
                     // Soumission réussie
-                    deleteMessage.innerText = 'Suppression du projet réussie';
+                    deleteMessage.textContent = 'Suppression du projet réussie';
                     deleteMessageBox.classList.remove('hidden');
                     deleteMessageBox.classList.add('flex-display');
                     setTimeout(function () {
@@ -163,10 +161,12 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 figuresToDelete.forEach(figure => {
                     figure.remove();
                 });
+                //Réinitialise le set qui stocke les id des figures à supprimer
+                figuresIdToDelete.clear();
             })
             .catch(error => {
                 //traitement de l'erreur
-                deleteMessage.innerText = error.message;
+                deleteMessage.textContent = error.message;
                 deleteMessageBox.classList.remove('hidden');
                 deleteMessageBox.classList.add('flex-display');
             });
@@ -224,24 +224,15 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
 
 
-    //Fonction récupérer catégories projet
-    let categorySelectCreated = false;
     //Fonction pour créer la liste déroulante des catégories
-    function createCategorySelect() {
-
-        if (categorySelectCreated) {
-            return;
-        }
-
-        //Input catégorie projet - Récupérer la liste déroulante
-        const projectCategorySelect = document.getElementById('modal-project-category');
+    function createCategorySelect(categorySelect) {
 
         //Créer une option vide par défaut
         const emptyOption = document.createElement('option');
         emptyOption.value = '';
-        emptyOption.innerText = '';
+        emptyOption.textContent = '';
         emptyOption.selected = true;
-        projectCategorySelect.appendChild(emptyOption);
+        categorySelect.appendChild(emptyOption);
 
         // Récupérer les boutons qui ont un attribut data-category-id
         const filtersButtons = document.querySelectorAll('.filters-buttons button[data-category-id]');
@@ -250,12 +241,9 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         filtersButtons.forEach(function (button) {
             const option = document.createElement('option');
             option.value = button.getAttribute('data-category-id');
-            option.innerText = button.innerText;
-            projectCategorySelect.appendChild(option);
+            option.textContent = button.textContent;
+            categorySelect.appendChild(option);
         });
-
-        categorySelectCreated = true;
-
     }
 
     //Fonction vérifier que les inputs requis sont remplis dans add-photo-modal
@@ -330,7 +318,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         //Afficher validate Button en gris
         validateButton.classList.add('gray-button');
         validateButton.classList.remove('green-button');
-        validateButtonAllowed = false;
     }
 
     //Fonction envoi des données au DOM
@@ -379,7 +366,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 // Traiter la réponse
                 if (response.ok) {
                     // Soumission réussie
-                    addMessage.innerText = 'Ajout du projet réussi';
+                    addMessage.textContent = 'Ajout du projet réussi';
                     addMessageBox.classList.add('flex-display');
                     addMessageBox.classList.remove('hidden');
                     setTimeout(function () {
@@ -408,7 +395,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             })
             .catch(error => {
                 //traitement de l'erreur
-                addMessage.innerText = error.message;
+                addMessage.textContent = error.message;
                 addMessageBox.classList.add('flex-display');
                 addMessageBox.classList.remove('hidden');
             });
@@ -434,6 +421,8 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         const allGalleryFigures = document.querySelectorAll('figure[data-category-id]');
         // Créer les figures pour chaque projet
         allGalleryFigures.forEach(addFigureToModalGallery);
+        //Appeler la fonction pour créer la liste déroulante des catégories
+        createCategorySelect(projectCategoryInput);
 
 
         //Ouvrir modale d'édition
@@ -447,8 +436,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         addPhotoModalLink.addEventListener('click', function (event) {
             closeModal(event);
             openModal.call(event.currentTarget, event); //openModal lorsqu'on clique sur addPhotoModalLink
-            //Appeler la fonction pour créer la liste déroulante lorsque le script est exécuté
-            createCategorySelect();
         });
 
 
