@@ -35,7 +35,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         //Récupère élément cible de l'attribut data-href du lien cliqué
         const currentModal = document.querySelector(this.getAttribute('data-href'));
         //Affiche la modale en flexbox
-        currentModal.style.display = 'flex';
+        currentModal.classList.add('flex-display');
         currentModal.setAttribute('aria-hidden', false);
         currentModal.setAttribute('aria-modal', true);
 
@@ -56,7 +56,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         const currentModal = document.querySelector('dialog.modal[aria-hidden="false"]');
         if (currentModal !== null) {
             //Masque la modale
-            currentModal.style.display = 'none';
+            currentModal.classList.remove('flex-display');
             currentModal.setAttribute('aria-hidden', true);
             currentModal.setAttribute('aria-modal', false);
             //Suppression des EventListener de la modale
@@ -69,7 +69,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             if (currentModal.id === 'add-photo-modal') {
                 resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
             }
-            //Authorize à nouveau el défilement de la page
+            //Authorize à nouveau le défilement de la page
             document.body.classList.remove('js-modal-stop-scrolling');
         }
     };
@@ -94,7 +94,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         modalWorkEditTitle.innerText = 'éditer';
         //Création des icones pour supprimer et déplacer
         const modalDragIcon = document.createElement('i');
-        modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right');
+        modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right', 'hidden');
         const modalDeleteIcon = document.createElement('button');
         modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
         modalDeleteIcon.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
@@ -109,37 +109,19 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
         modalWorkFigure.addEventListener('mouseout', function (event) {
             if (event.target.tagName === 'IMG') {
-                // Récupérer l'icône suivant l'image ciblée
-                // const modalDragIcon = event.target.nextElementSibling;
-                modalDragIcon.style.display = 'none';
+                // Masquer l'icône associé à l'image ciblée
+                modalDragIcon.classList.remove('icon-display-block');
+                modalDragIcon.classList.add('hidden');
             }
         });
         // Ajouter un gestionnaire d'événements pour l'événement "mouseover"
         modalWorkFigure.addEventListener('mouseover', function (event) {
             if (event.target.tagName === 'IMG') {
-                // Récupérer l'icône suivant l'image ciblée
-                // const modalDragIcon = event.target.nextElementSibling;
-                modalDragIcon.style.display = 'block';
-                modalDragIcon.style.right = '27px';
+                // Afficher l'icône associé à l'image ciblée
+                modalDragIcon.classList.remove('hidden');
+                modalDragIcon.classList.add('icon-display-block');
             }
         });
-    }
-
-    //Fonction récupérer projets
-    let modaleGalleryCreated = false;
-    //Fonction pour créer la galerie des projets dans la modale d'édition
-    function displayModaleGallery() {
-        if (modaleGalleryCreated) {
-            // Afficher la galerie sans la recréer
-            return;
-        } else {
-            // Récupérer les boutons qui ont un attribut data-category-id
-            const allGalleryFigures = document.querySelectorAll('figure[data-category-id]');
-            // Créer les figures pour chaque projet
-            allGalleryFigures.forEach(addFigureToModalGallery);
-
-            modaleGalleryCreated = true;
-        }
     }
 
 
@@ -158,9 +140,11 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 if (response.ok) {
                     // Soumission réussie
                     deleteMessage.innerText = 'Suppression du projet réussie';
-                    deleteMessageBox.style.display = 'flex';
+                    deleteMessageBox.classList.remove('hidden');
+                    deleteMessageBox.classList.add('flex-display');
                     setTimeout(function () {
-                        deleteMessageBox.style.display = 'none';
+                        deleteMessageBox.classList.add('hidden');
+                        deleteMessageBox.classList.remove('flex-display');
                     }, 3000);
                 } else {
                     if (response.status === 401) {
@@ -183,7 +167,8 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             .catch(error => {
                 //traitement de l'erreur
                 deleteMessage.innerText = error.message;
-                deleteMessageBox.style.display = 'flex';
+                deleteMessageBox.classList.remove('hidden');
+                deleteMessageBox.classList.add('flex-display');
             });
     }
 
@@ -279,11 +264,13 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     function checkValidateButton(validateButton, image, title, category) {
         if (image.value && title.value && category.value) {
             //Couleur bouton Valider gris passe au vert lorsque les éléments required sont remplis
-            validateButton.style.backgroundColor = '#1D6154';
+            validateButton.classList.add('green-button');
+            validateButton.classList.remove('gray-button');
             //On active la possibilité de soumettre le formulaire
             validateButtonAllowed = true;
         } else {
-            validateButton.style.backgroundColor = '#A7A7A7';
+            validateButton.classList.remove('green-button');
+            validateButton.classList.add('gray-button');
             validateButtonAllowed = false;
         }
     }
@@ -303,6 +290,10 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         //Afficher les autres éléments du block image-input
         const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
         elements.forEach(element => element.style.display = 'block');
+        //Afficher validate Button en gris
+        validateButton.classList.add('gray-button');
+        validateButton.classList.remove('green-button');
+        validateButtonAllowed = false;
     }
 
     //Fonction envoi des données au DOM
@@ -352,9 +343,11 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 if (response.ok) {
                     // Soumission réussie
                     addMessage.innerText = 'Ajout du projet réussi';
-                    addMessageBox.style.display = 'flex';
+                    addMessageBox.classList.add('flex-display');
+                    addMessageBox.classList.remove('hidden');
                     setTimeout(function () {
-                        addMessageBox.style.display = 'none';
+                        addMessageBox.classList.add('hidden');
+                        addMessageBox.classList.remove('flex-display');
                     }, 3000);
                 } else {
                     if (response.status === 400) {
@@ -379,7 +372,8 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             .catch(error => {
                 //traitement de l'erreur
                 addMessage.innerText = error.message;
-                addMessageBox.style.display = 'flex';
+                addMessageBox.classList.add('flex-display');
+                addMessageBox.classList.remove('hidden');
             });
 
     }
@@ -401,11 +395,16 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     //Vérification de la valeur du token avant d'afficher modale sur la page en mode édition
     if (token !== null) {
 
+        //Créer la galerie des projets dans la modale d'édition
+        // Récupérer les boutons qui ont un attribut data-category-id
+        const allGalleryFigures = document.querySelectorAll('figure[data-category-id]');
+        // Créer les figures pour chaque projet
+        allGalleryFigures.forEach(addFigureToModalGallery);
+
 
         //Ouvrir modale d'édition
         editorModalLink.addEventListener('click', function (event) {
             openModal.call(event.currentTarget, event);
-            displayModaleGallery();
             handleTrashIcons();
             handleDeleteAllButton();
         });

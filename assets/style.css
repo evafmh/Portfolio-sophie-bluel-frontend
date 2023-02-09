@@ -265,7 +265,8 @@ nav li .current-page {
 	cursor: pointer;
 }
 
-.selected-filter-button {
+.selected-filter-button,
+.green-button {
 	background-color: #1D6154;
 	color: #FFFFFF;
 }
@@ -344,7 +345,7 @@ select {
 	margin: 2em;
 }
 
-input[type="submit"] {
+section input[type="submit"] {
 	font-family: 'Syne';
 	font-weight: 700;
 	color: white;
@@ -355,7 +356,7 @@ input[type="submit"] {
 	border-radius: 60px;
 }
 
-input[type="submit"]:hover {
+section input[type="submit"]:hover {
 	cursor: pointer;
 	background-color: #0E2F28;
 }
@@ -381,6 +382,10 @@ footer li {
 
 .hidden {
 	display: none;
+}
+
+.flex-display {
+	display: flex;
 }
 
 #introduction figure div {
@@ -429,7 +434,6 @@ footer li {
 }
 
 .edit-notification-container {
-	display: none;
 	justify-content: center;
 	align-items: center;
 	background-color: #FFFFFF;
@@ -502,9 +506,21 @@ footer li {
 	padding: 4px;
 	position: absolute;
 	top: 4px;
-	right: 4px;
 	cursor: pointer;
 }
+
+#modal-gallery .fa-trash {
+	right: 4px;
+}
+
+#modal-gallery .icon-display-block {
+	display: block;
+    right: 27px;
+}
+
+#modal-gallery .fa-solid.hidden {
+	--fa-display: none;
+  }
 
 .modal-title {
 	font-weight: 400;
@@ -604,8 +620,11 @@ footer li {
 	width: 100%;
 }
 
-#modal-validate-button {
+.gray-button {
 	background-color: #A7A7A7;
+}
+
+#modal-validate-button {
 	width: 237px;
 	font-size: 14px;
 	height: 36px;

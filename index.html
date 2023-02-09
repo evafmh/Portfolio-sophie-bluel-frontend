@@ -78,7 +78,7 @@
 				</div>
 				<h3 class="modal-title" id="editor-modal-title">Galerie photo</h3>
 				<div id="modal-gallery"></div>
-				<div class="edit-notification-container" id="js-delete-notification-container">
+				<div class="edit-notification-container hidden" id="js-delete-notification-container">
 					<div class="notification-message" id="js-delete-notification"></div>
 				</div>
 				<button class='modal-submit-button' data-href='#add-photo-modal'
@@ -107,10 +107,10 @@
 						<label for="modal-project-category">Catégorie</label>
 						<select id='modal-project-category' required></select>
 					</div>
-					<div class="edit-notification-container" id="js-add-photo-notification-container">
+					<div class="edit-notification-container hidden" id="js-add-photo-notification-container">
 						<div class="notification-message" id="js-add-photo-notification"></div>
 					</div>
-					<input class='modal-submit-button' id='modal-validate-button' type="submit" value="Valider">
+					<input class='modal-submit-button gray-button' id='modal-validate-button' type="submit" value="Valider">
 				</form>
 			</div>
 		</dialog>
