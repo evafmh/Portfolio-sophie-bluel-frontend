@@ -8,6 +8,7 @@ const modalGallery = document.getElementById('modal-gallery');
 const addPhotoModalLink = document.getElementById('editor-modal-add-photo-button');
 //Récupérer formulaire de la modale add-photo-modal
 const addPhotoForm = document.getElementById('add-photo-form');
+
 //Récupérer div pour les notifications de supression
 const deleteMessage = document.getElementById('js-delete-notification');
 //Récupérer container des notifications de suppression pour afficher/masquer
@@ -16,6 +17,14 @@ const deleteMessageBox = document.getElementById('js-delete-notification-contain
 const addMessage = document.getElementById('js-add-photo-notification');
 //Récupérer container des notifications d'ajout pour afficher/masquer
 const addMessageBox = document.getElementById('js-add-photo-notification-container');
+//Récupérer div pour les notifications sur input titre
+const titleMessage = document.getElementById('js-title-notification');
+//Récupérer container des notifications sur input titre
+const titleMessageBox = document.getElementById('js-title-notification-container');
+//Récupérer div pour les notifications sur input catégories
+const categoryMessage = document.getElementById('js-categories-notification');
+//Récupérer container des notifications sur input catégories
+const categoryMessageBox = document.getElementById('js-categories-notification-container');
 
 // Récupération des inputs
 const projectImageInput = document.querySelector('#modal-project-image-input');
@@ -104,6 +113,8 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         modalWorkFigure.appendChild(modalDragIcon);
         modalWorkFigure.appendChild(modalDeleteIcon);
         modalWorkFigure.appendChild(modalWorkEditTitle);
+        //Add possibility to delete project
+        addTrashIconFunction(modalDeleteIcon);
         // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
         modalWorkFigure.addEventListener('mouseout', function (event) {
             if (event.target.tagName === 'IMG') {
@@ -123,6 +134,16 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     }
 
 
+    function displayNotificationMessage(messageBox) {
+        messageBox.classList.add('flex-display');
+        messageBox.classList.remove('hidden');
+        setTimeout(function () {
+            messageBox.classList.add('hidden');
+            messageBox.classList.remove('flex-display');
+        }, 3000);
+    }
+
+
     //Fonction pour supprimer les figures de l'API
     function deleteProjectFromAPI(figureId) {
         let figuresToDelete = document.querySelectorAll(`figure[data-figure-id="${figureId}"]`);
@@ -138,21 +159,16 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 if (response.ok) {
                     // Soumission réussie
                     deleteMessage.textContent = 'Suppression du projet réussie';
-                    deleteMessageBox.classList.remove('hidden');
-                    deleteMessageBox.classList.add('flex-display');
-                    setTimeout(function () {
-                        deleteMessageBox.classList.add('hidden');
-                        deleteMessageBox.classList.remove('flex-display');
-                    }, 3000);
+                    displayNotificationMessage(deleteMessageBox);
                 } else {
                     if (response.status === 401) {
-                        throw new Error(`Supression du projet non authorisée\n Veuillez vous connecter.`);
+                        throw new Error(`Erreur: Connexion requise pour supprimer le projet\n Veuillez vous connecter.`);
                     }
                     else if (response.status === 500) {
-                        throw new Error(`Supression impossible\n Erreur interne du serveur. Veuillez essayer ultérieurement.`);
+                        throw new Error(`Erreur: Échec de la suppression du projet\n Veuillez réessayer plus tard.`);
                     }
                     else {
-                        throw new Error('Erreur dans la suppression du projet');
+                        throw new Error('Erreur: Échec de la suppression du projet');
                     }
                 }
             })
@@ -161,8 +177,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 figuresToDelete.forEach(figure => {
                     figure.remove();
                 });
-                //Réinitialise le set qui stocke les id des figures à supprimer
-                figuresIdToDelete.clear();
             })
             .catch(error => {
                 //traitement de l'erreur
@@ -172,56 +186,34 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             });
     }
 
-    let trashIconsAdded = false;
-    let deleteAllAdded = false;
-
-    //Fonction pour gérer les icônes de suppression
-    function handleTrashIcons() {
-        if (!trashIconsAdded) {
-            let trashIcons = document.querySelectorAll('#modal-gallery .fa-trash');
-
-            trashIcons.forEach(icon => {
-                icon.addEventListener('click', event => {
-                    event.preventDefault();
-                    if (confirm('Etes-vous sûr.e de vouloir supprimer cet élément ?')) {
-                        let figureId = icon.getAttribute('data-figure-id');
-                        deleteProjectFromAPI(figureId);
-                    } else {
-                        return;
-                    }
-                });
-            });
-            trashIconsAdded = true;
-        }
+    function addTrashIconFunction(icon) {
+        icon.addEventListener('click', event => {
+            event.preventDefault();
+            if (confirm('Etes-vous sûr.e de vouloir supprimer cet élément ?')) {
+                let figureId = icon.getAttribute('data-figure-id');
+                deleteProjectFromAPI(figureId);
+            } else {
+                return;
+            }
+        });
     }
 
 
     //Fonction pour gérer le bouton Supprimer tout
-    let figuresIdToDelete = new Set(); //Stocke les Ids des figures à supprimer
-
-    function handleDeleteAllButton() {
-        let deleteAllButton = document.getElementById('gallery-delete-modal-button');
-        if (!deleteAllAdded) {
-            deleteAllButton.addEventListener('click', event => {
-                event.preventDefault();
-                const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
-
-                if (confirm('ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?')) {
-                    allProjectsFigures.forEach(projectsFigure => {
-                        let figureId = projectsFigure.getAttribute('data-figure-id');
-                        figuresIdToDelete.add(figureId); // Ajoute l'ID de toutes les figures à la liste des figures à supprimer
-                    });
-                    figuresIdToDelete.forEach(figureId => {
-                        deleteProjectFromAPI(figureId);
-                    });
-                } else {
-                    return;
-                }
-            });
-            deleteAllAdded = true;
-        }
+    function handleDeleteAllButton(button) {
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
+            if (confirm('ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?')) {
+                allProjectsFigures.forEach(projectsFigure => {
+                    let figureId = projectsFigure.getAttribute('data-figure-id');
+                    deleteProjectFromAPI(figureId);
+                });
+            } else {
+                return;
+            }
+        });
     }
-
 
 
     //Fonction pour créer la liste déroulante des catégories
@@ -248,7 +240,9 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
     //Fonction vérifier que les inputs requis sont remplis dans add-photo-modal
     function checkValidateButton(validateButton, image, title, category) {
+
         let allInputsAreFilled = false;
+
         if (image.value && title.value && category.value) {
             //Couleur bouton Valider gris passe au vert lorsque les éléments required sont remplis
             validateButton.classList.add('green-button');
@@ -258,7 +252,9 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             validateButton.classList.remove('green-button');
             validateButton.classList.add('gray-button');
         }
+
         return allInputsAreFilled;
+
     }
 
 
@@ -269,27 +265,29 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
         //Vérification input titre
         if (title.value) {
-            var value = title.value;
-            var regex = /^[A-Z0-9][a-zA-Z0-9- "&àâäéèêëîïôöùûü]{0,49}$/;
-            if (!regex.test(value)) {
+            var titleValue = title.value;
+            var titleRegex = /^[A-Z0-9][a-zA-Z0-9- "&àâäéèêëîïôöùûü]{0,49}$/;
+            if (!titleRegex.test(titleValue)) {
                 titleIsValid = false;
-                console.log('titre non valide');
             } else {
-                console.log('titre validé !!!')
                 titleIsValid = true;
             }
         }
 
+        // Récupérer les boutons qui ont un attribut data-category-id
+        const filtersButtons = document.querySelectorAll('.filters-buttons button[data-category-id]');
+        //Récupération nodeList des catégories et conversion en tableau
+        const categoryValues = Array.from(filtersButtons, button => button.getAttribute('data-category-id'));
+
         if (category.value) {
-            //Vérification input catégorie
-            var value = category.value;
-            var regex = /^\d+$/;
-            if (!regex.test(value)) {
+            var categoryInputValue = category.value;
+            var categoryRegex = /^\d+$/;
+            if (!categoryRegex.test(categoryInputValue)) {
                 categoryIsValid = false;
-                console.log('catégorie non validée');
+            } else if (!categoryValues.includes(categoryInputValue)) {
+                categoryIsValid = false;
             } else {
                 categoryIsValid = true;
-                console.log('catégorie validée !!!');
             }
         }
 
@@ -366,13 +364,8 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 // Traiter la réponse
                 if (response.ok) {
                     // Soumission réussie
-                    addMessage.textContent = 'Ajout du projet réussi';
-                    addMessageBox.classList.add('flex-display');
-                    addMessageBox.classList.remove('hidden');
-                    setTimeout(function () {
-                        addMessageBox.classList.add('hidden');
-                        addMessageBox.classList.remove('flex-display');
-                    }, 3000);
+                    addMessage.textContent = `L'ajout du projet a réussi`;
+                    displayNotificationMessage(addMessageBox);
                 } else {
                     if (response.status === 400) {
                         throw new Error(`Erreur dans les données envoyées\n Veuillez vérifier les données du formulaire.`);
@@ -403,16 +396,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     }
 
 
-    function inputMissingMessage() {
-        let missingInpuNotification = document.createElement('p');
-        missingInpuNotification.classList.add('notification-message');
-        missingInpuNotification.textContent = `Veuillez ajouter l'image, le titre et la catégorie avant de valider`;
-        addPhotoForm.appendChild(missingInpuNotification);
-        setTimeout(function () {
-            addPhotoForm.removeChild(missingInpuNotification);
-        }, 3000);
-    }
-
     //Vérification de la valeur du token avant d'afficher modale sur la page en mode édition
     if (token !== null) {
 
@@ -423,13 +406,14 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         allGalleryFigures.forEach(addFigureToModalGallery);
         //Appeler la fonction pour créer la liste déroulante des catégories
         createCategorySelect(projectCategoryInput);
+        // Gérer le bouton supprimer tout
+        let deleteAllButton = document.getElementById('gallery-delete-modal-button');
+        handleDeleteAllButton(deleteAllButton);
 
 
         //Ouvrir modale d'édition
         editorModalLink.addEventListener('click', function (event) {
             openModal.call(event.currentTarget, event);
-            handleTrashIcons();
-            handleDeleteAllButton();
         });
 
         //Ouvrir modale add-photo
@@ -444,14 +428,13 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         modalPreviousButton.addEventListener('click', function (event) {
             closeModal(event);
             openModal.call(editorModalLink, event);
-            handleTrashIcons();
-            handleDeleteAllButton();
         });
 
 
         //Charger une image
         // Ajout d'un écouteur d'événement change sur l'input d'image
         projectImageInput.addEventListener('change', (event) => {
+
             // Récupération de l'image sélectionnée
             const image = event.target.files[0];
             // Vérification de la taille de l'image
@@ -460,17 +443,20 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 projectImageInput.value = '';
                 return;
             }
+
             // Création d'un objet FileReader
             const reader = new FileReader();
             //Création img
             const uploadedImage = document.createElement('img');
             uploadedImage.id = 'js-modal-uploaded-image';
+
             // Ajout d'un écouteur d'événement load sur l'objet FileReader
             reader.onload = (e) => {
                 // Attribution de la source de l'image uploadée à l'image à afficher
                 uploadedImage.src = e.target.result;
                 uploadedImage.alt = image.name;
                 uploadedImage.classList.add('uploaded-image-display');
+
                 //Ajout image uploadée au bloc
                 const imageInputBlock = document.querySelector('.modal-image-input-block');
                 imageInputBlock.appendChild(uploadedImage);
@@ -481,6 +467,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                     element.classList.remove('block-display');
                 });
             };
+
             // Lecture de l'image sélectionnée en tant que données binaires (DataURL)
             reader.readAsDataURL(image);
         });
@@ -497,10 +484,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         validateButton.addEventListener('click', (event) => {
             event.preventDefault();
             let formatCheckResult = checkInputFormat(projectTitleInput, projectCategoryInput);
-            console.log(formatCheckResult);
             let inputsAreFilledResult = checkValidateButton(validateButton, projectImageInput, projectTitleInput, projectCategoryInput);
-            console.log(inputsAreFilledResult);
-            console.log(!inputsAreFilledResult);
             //Si les inputs sont tous correctement remplis
             if (inputsAreFilledResult && formatCheckResult.titleIsValid && formatCheckResult.categoryIsValid) {
                 //Soumettre formulaire
@@ -509,25 +493,28 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
             //S'il manque un input
             else if (!inputsAreFilledResult) {
                 //Message indique qu'il manque un ou plusieurs inputs
-                inputMissingMessage();
-                console.log('message missing input veuillez remplir tous les inputs');
+                addMessage.textContent = `Veuillez ajouter une image, un titre et une catégorie pour valider.`;
+                displayNotificationMessage(addMessageBox);
             }
             //Si un format est incorrect
             else if (!formatCheckResult.titleIsValid || !formatCheckResult.categoryIsValid) {
                 //Si le format du titre est incorrect
                 if (!formatCheckResult.titleIsValid) {
                     //Message indique que le format du titre n'est pas correct
-                    console.log('message user problème format titre');
+                    titleMessage.textContent = `Le titre doit débuter par une majuscule et peut inclure des caractères spéciaux tels que &, -, "".`;
+                    displayNotificationMessage(titleMessageBox);
                 }
                 //Si le format de la catégorie est incorrecte
                 if (!formatCheckResult.categoryIsValid) {
                     //Message indique que le format de la catégorie n'est pas correct
-                    console.log('message user problème format catégorie');
+                    categoryMessage.textContent = `Choisissez une catégorie dans la liste.`;
+                    displayNotificationMessage(categoryMessageBox);
                 }
             }
             //Autre problème
             else {
-                console.log('message générique problème veuillez vérifier les données du formulaire');
+                addMessage.textContent = 'Veuillez vérifier les informations entrées dans le formulaire et essayez à nouveau de les soumettre.';
+                displayNotificationMessage(addMessageBox);
             }
 
         });
