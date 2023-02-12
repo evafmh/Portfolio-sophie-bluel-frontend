@@ -444,6 +444,13 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 return;
             }
 
+            // Récupération de l'image avec le même id
+            const previousImage = document.querySelector('#js-modal-uploaded-image');
+            // Suppression de l'image précédente si elle existe
+            if (previousImage) {
+                previousImage.remove();
+            }
+
             // Création d'un objet FileReader
             const reader = new FileReader();
             //Création img
@@ -470,6 +477,11 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
             // Lecture de l'image sélectionnée en tant que données binaires (DataURL)
             reader.readAsDataURL(image);
+
+            // Ajout d'un écouteur d'événement click sur l'image uploadée
+            uploadedImage.addEventListener('click', () => {
+                projectImageInput.click();
+            });
         });
 
 
