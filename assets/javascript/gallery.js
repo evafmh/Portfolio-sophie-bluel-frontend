@@ -1,10 +1,8 @@
-import { createFilterButton, handleFilterButtonClick, handleDisplayAllButton, createFigure } from './myFunctions.js';
-
+import { createFilterButton, handleFilterButtonClick, createFigure } from './myFunctions.js';
 
 const fetchCategoriesReady = new Promise((resolve) => {
 
-    //Gestion de l'affichage des catégories
-    //Récupération des catégories depuis le backend en JSON
+    //Récupération et affichage des catégories depuis le backend
     fetch('http://localhost:5678/api/categories')
         .then(response => {
             if (response.ok) {
@@ -16,12 +14,8 @@ const fetchCategoriesReady = new Promise((resolve) => {
             // Boucle sur les catégories pour créer les boutons filtres
             for (let i = 0; i < data.length; i++) {
                 //Création des boutons filtres
-                const filtersButton = createFilterButton(data[i]);
-
-                //Récupération de l'élément gallery du DOM qui accueillera les boutons filtres
                 const filtersButtonBlock = document.querySelector('.filters-buttons');
-                //Rattachement des balise Button au DOM pour afficher les boutons
-                filtersButtonBlock.appendChild(filtersButton);
+                const filtersButton = createFilterButton(data[i], filtersButtonBlock);
 
                 //gestion des boutons sur un évènement click
                 filtersButton.addEventListener('click', handleFilterButtonClick);
@@ -30,61 +24,44 @@ const fetchCategoriesReady = new Promise((resolve) => {
             resolve();
         })
         .catch(error => {
-            //gestion des erreurs
             document.querySelector('.filters-buttons').textContent = error.message;
         });
 });
 
 
-//Gestion du bouton 'Tous'
+//Gestion du bouton "Tous"
 const displayAllFilterButton = document.querySelector('#display-all-filter-button');
-displayAllFilterButton.addEventListener('click', (event) => handleDisplayAllButton(event.target));
+displayAllFilterButton.addEventListener('click', handleFilterButtonClick);
 
 
-let projectsLoaded = false;
 const fetchGalleryReady = new Promise((resolve) => {
 
+    //Récupéraytion et affichage des projets depuis le backend
+    fetch('http://localhost:5678/api/works')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Erreur dans la récupération des projets');
+        })
+        .then(data => {
+            //Boucle sur les projets pour créer les figures
+            for (let i = 0; i < data.length; i++) {
 
-    //Gestion de l'affichage des projets
-    if (!projectsLoaded) {
-        //Gestion de l'affichage des projets
-        fetch('http://localhost:5678/api/works')
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Erreur dans la récupération des projets');
-            })
-            .then(data => {
-                //Boucle sur les projets pour créer les balises
-                for (let i = 0; i < data.length; i++) {
+                //Récupération des 2 éléments gallery du DOM qui accueilleront les projets
+                const portfolioGallery = document.querySelector('.gallery');
+                const modalGallery = document.getElementById('modal-gallery');
 
-                    //Récupération de l'élément gallery du DOM qui accueillera les projets
-                    const portfolioGallery = document.querySelector('.gallery');
-                    //Récupération de l'élément modal gallery
-                    const modalGallery = document.getElementById('modal-gallery');
+                //Création figure
+                createFigure(data[i], portfolioGallery, modalGallery);
 
-                    //Création figure
-                    const galleryFigure = createFigure(data[i]);
+            }
+            resolve();
+        })
+        .catch(error => {
+            document.querySelector('.gallery').textContent = error.message;
+        });
 
-                    const portfolioFigure = galleryFigure;
-                    const modalFigure = galleryFigure.cloneNode(true);
-
-                    //Rattachement de la balise figure à la section gallery du portfolio et de la modal
-                    //ajout portfolio
-                    portfolioGallery.appendChild(portfolioFigure);
-                    // //ajout modal
-                    modalGallery.appendChild(modalFigure);
-
-                }
-                projectsLoaded = true;
-                resolve();
-            })
-            .catch(error => {
-                //gestion des erreurs
-                document.querySelector('.gallery').textContent = error.message;
-            });
-    }
 
 });
 
