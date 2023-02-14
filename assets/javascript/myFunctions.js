@@ -12,7 +12,7 @@ export function createFilterButton(data, buttonBlock) {
 export function handleFilterButtonClick(event) {
     const selectedCategory = event.target.dataset.categoryId;
 
-    //Récupération des projets dans la gallerie
+    //Récupération des projets dans la galerie
     const allWorks = document.querySelectorAll('div.gallery figure[data-category-id]');
     const worksListToDisplay = document.querySelectorAll('div.gallery figure[data-category-id="' + selectedCategory + '"]');
     const worksListToHide = document.querySelectorAll('div.gallery figure:not([data-category-id="' + selectedCategory + '"])');
@@ -49,7 +49,7 @@ export function handleFilterButtonClick(event) {
 
     } else {
 
-        //Sinon on affiche tous les projets de la gallerie
+        //Sinon on affiche tous les projets de la galerie
         allWorks.forEach(function (work) {
             work.classList.add('block-display');
             work.classList.remove('hidden');
@@ -86,10 +86,11 @@ export function createFigure(data, gallery, modalGallery) {
 
     //Dupliquer figure
     const modalFigure = workFigure.cloneNode(true);
+    modalFigure.querySelector('figcaption').classList.add('hidden');
 
     //Rattachement de la figure à la section gallery du portfolio et de la modale
     gallery.appendChild(workFigure);
     modalGallery.appendChild(modalFigure);
 
-    return workFigure;
+    return modalFigure;
 }

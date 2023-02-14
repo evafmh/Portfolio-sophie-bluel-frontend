@@ -1,3 +1,5 @@
+import { createFigure } from './myFunctions.js';
+
 //Récupérer token pour passer en mode édition
 const token = localStorage.getItem('adminToken');
 //Récupérer lien editor-modal
@@ -88,47 +90,36 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     };
 
 
-    //Fonction pour ajouter une figure à la galerie de la modale
-    function addFigureToModalGallery(galleryFigure) {
-        const modalWorkFigure = document.createElement('figure');
-        modalWorkFigure.dataset.categoryId = galleryFigure.getAttribute('data-category-id');
-        modalWorkFigure.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
-        const modalWorkImage = document.createElement('img');
-        modalWorkImage.src = galleryFigure.querySelector('img').src;
-        modalWorkImage.alt = galleryFigure.querySelector('img').alt;
-        modalWorkImage.crossOrigin = 'anonymous';
-        const modalWorkEditTitle = document.createElement('a');
-        modalWorkEditTitle.textContent = 'éditer';
+    //Fonction pour ajouter les icônes d'édition à chaque figure de la modale
+    function addEditIcons(figure) {
+        const modalWorkEditLegend = document.createElement('a');
+        modalWorkEditLegend.textContent = 'éditer';
         //Création des icones pour supprimer et déplacer
-        const modalDragIcon = document.createElement('i');
-        modalDragIcon.classList.add('fa-solid', 'fa-up-down-left-right', 'hidden');
+        const modalMoveIcon = document.createElement('i');
+        modalMoveIcon.classList.add('fa-solid', 'fa-up-down-left-right', 'hidden');
         const modalDeleteIcon = document.createElement('button');
         modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
-        modalDeleteIcon.dataset.figureId = galleryFigure.getAttribute('data-figure-id');
-        //Rattachement des balises au DOM pour afficher les figures
-        //Rattachement de la balise figure à la section gallery dans la modale
-        modalGallery.appendChild(modalWorkFigure);
-        //Rattachement des balises images, titre et icones à la modalWorkFigure (balise figure)
-        modalWorkFigure.appendChild(modalWorkImage);
-        modalWorkFigure.appendChild(modalDragIcon);
-        modalWorkFigure.appendChild(modalDeleteIcon);
-        modalWorkFigure.appendChild(modalWorkEditTitle);
-        //Add possibility to delete project
+        modalDeleteIcon.dataset.figureId = figure.getAttribute('data-figure-id');
+        //Rattachement des icones et la légende à la figure
+        figure.appendChild(modalMoveIcon);
+        figure.appendChild(modalDeleteIcon);
+        figure.appendChild(modalWorkEditLegend);
+        //Ajouter possibilité de supprimer un projet
         addTrashIconFunction(modalDeleteIcon);
         // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
-        modalWorkFigure.addEventListener('mouseout', function (event) {
+        figure.addEventListener('mouseout', function (event) {
             if (event.target.tagName === 'IMG') {
-                // Masquer l'icône associé à l'image ciblée
-                modalDragIcon.classList.remove('icon-display-block');
-                modalDragIcon.classList.add('hidden');
+                // Masquer l'icône associé à l'image survolée
+                modalMoveIcon.classList.remove('icon-display-block');
+                modalMoveIcon.classList.add('hidden');
             }
         });
         // Ajouter un gestionnaire d'événements pour l'événement "mouseover"
-        modalWorkFigure.addEventListener('mouseover', function (event) {
+        figure.addEventListener('mouseover', function (event) {
             if (event.target.tagName === 'IMG') {
-                // Afficher l'icône associé à l'image ciblée
-                modalDragIcon.classList.remove('hidden');
-                modalDragIcon.classList.add('icon-display-block');
+                // Afficher l'icône associé à l'image survolée
+                modalMoveIcon.classList.remove('hidden');
+                modalMoveIcon.classList.add('icon-display-block');
             }
         });
     }
@@ -140,7 +131,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         setTimeout(function () {
             messageBox.classList.add('hidden');
             messageBox.classList.remove('flex-display');
-        }, 3000);
+        }, 5000);
     }
 
 
@@ -281,10 +272,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
         if (category.value) {
             var categoryInputValue = category.value;
-            var categoryRegex = /^\d+$/;
-            if (!categoryRegex.test(categoryInputValue)) {
-                categoryIsValid = false;
-            } else if (!categoryValues.includes(categoryInputValue)) {
+            if (!categoryValues.includes(categoryInputValue)) {
                 categoryIsValid = false;
             } else {
                 categoryIsValid = true;
@@ -318,29 +306,6 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
         validateButton.classList.remove('green-button');
     }
 
-    //Fonction envoi des données au DOM
-    function addFigureToDOM(image, title, category) {
-        // Utiliser les arguments pour créer la figure avec les données soumises
-        // Créer la figure avec les données récupérées
-        const newFigure = document.createElement('figure');
-        newFigure.setAttribute('data-category-id', category.selectedOptions[0].value);
-        const img = document.createElement('img');
-        // Assigne la source de l'image uploadée à l'élément img
-        img.src = URL.createObjectURL(image.files[0]);
-        img.alt = title.value;
-        img.setAttribute('crossorigin', 'anonymous');
-        const figcaption = document.createElement('figcaption');
-        figcaption.textContent = title.value;
-        newFigure.appendChild(img);
-        newFigure.appendChild(figcaption);
-
-        // Ajouter la figure à la div 'gallery'
-        const gallery = document.querySelector('.gallery');
-        gallery.appendChild(newFigure);
-        //Ajouter la figure à la modale
-        addFigureToModalGallery(newFigure);
-    }
-
 
     //Fonction gestion de la soumission du formulaire
 
@@ -366,6 +331,7 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                     // Soumission réussie
                     addMessage.textContent = `L'ajout du projet a réussi`;
                     displayNotificationMessage(addMessageBox);
+                    return response.json();
                 } else {
                     if (response.status === 400) {
                         throw new Error(`Erreur dans les données envoyées\n Veuillez vérifier les données du formulaire.`);
@@ -381,9 +347,16 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                     }
                 }
             })
-            .then(() => {
-                //traitement de la réponse de l'API
-                addFigureToDOM(imageInput, projectTitleInput, projectCategorySelect);
+            .then((data) => {
+                //Récupération des 2 galeries du DOM qui accueilleront les projets
+                const portfolioGallery = document.querySelector('.gallery');
+                const modalGallery = document.getElementById('modal-gallery');
+
+                //Création figure dans le DOM
+                const newFigure = createFigure(data, portfolioGallery, modalGallery);
+                addEditIcons(newFigure);
+
+                //Réinitialisation du formulaire
                 resetAddPhotoModal(imageInput, projectTitleInput, projectCategorySelect);
             })
             .catch(error => {
@@ -399,15 +372,15 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
     //Vérification de la valeur du token avant d'afficher modale sur la page en mode édition
     if (token !== null) {
 
-        //Créer la galerie des projets dans la modale d'édition
-        // Récupérer les boutons qui ont un attribut data-category-id
-        const allGalleryFigures = document.querySelectorAll('figure[data-category-id]');
-        // Créer les figures pour chaque projet
-        allGalleryFigures.forEach(addFigureToModalGallery);
+        // Ajouter les icônes à la galerie modale
+        const modalFigures = modalGallery.querySelectorAll('figure[data-category-id]');
+        modalFigures.forEach(addEditIcons);
+
         //Appeler la fonction pour créer la liste déroulante des catégories
         createCategorySelect(projectCategoryInput);
+
         // Gérer le bouton supprimer tout
-        let deleteAllButton = document.getElementById('gallery-delete-modal-button');
+        const deleteAllButton = document.getElementById('gallery-delete-modal-button');
         handleDeleteAllButton(deleteAllButton);
 
 
