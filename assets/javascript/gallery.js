@@ -1,4 +1,4 @@
-import { createFilterButton, handleFilterButtonClick, createFigure } from './myFunctions.js';
+import { createFilterButton, createCategoryOption, handleFilterButtonClick, createFigure } from './myFunctions.js';
 
 const fetchCategoriesReady = new Promise((resolve) => {
 
@@ -17,6 +17,10 @@ const fetchCategoriesReady = new Promise((resolve) => {
                 const filtersButtonBlock = document.querySelector('.filters-buttons');
                 const filtersButton = createFilterButton(data[i], filtersButtonBlock);
 
+                //Création de la liste des catégorie dans le formulaire d'ajout de projet
+                const categorySelect = document.querySelector('#modal-project-category');
+                createCategoryOption(data[i], categorySelect);
+
                 //gestion des boutons sur un évènement click
                 filtersButton.addEventListener('click', handleFilterButtonClick);
 
@@ -25,6 +29,8 @@ const fetchCategoriesReady = new Promise((resolve) => {
         })
         .catch(error => {
             document.querySelector('.filters-buttons').textContent = error.message;
+            document.querySelector('.filters-buttons').classList.add('notification-message');
+
         });
 });
 
@@ -60,6 +66,7 @@ const fetchGalleryReady = new Promise((resolve) => {
         })
         .catch(error => {
             document.querySelector('.gallery').textContent = error.message;
+            document.querySelector('.gallery').classList.add('notification-message');
         });
 
 

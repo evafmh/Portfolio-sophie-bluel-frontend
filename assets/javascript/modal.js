@@ -1,4 +1,5 @@
-import { createFigure } from './myFunctions.js';
+import * as myFunctions from './myFunctions.js';
+import { fetchCategoriesReady, fetchGalleryReady } from './gallery.js';
 
 //Récupérer token pour passer en mode édition
 const token = localStorage.getItem('adminToken');
@@ -11,23 +12,6 @@ const addPhotoModalLink = document.getElementById('editor-modal-add-photo-button
 //Récupérer formulaire de la modale add-photo-modal
 const addPhotoForm = document.getElementById('add-photo-form');
 
-//Récupérer div pour les notifications de supression
-const deleteMessage = document.getElementById('js-delete-notification');
-//Récupérer container des notifications de suppression pour afficher/masquer
-const deleteMessageBox = document.getElementById('js-delete-notification-container');
-//Récupérer div pour les notifications d'ajout
-const addMessage = document.getElementById('js-add-photo-notification');
-//Récupérer container des notifications d'ajout pour afficher/masquer
-const addMessageBox = document.getElementById('js-add-photo-notification-container');
-//Récupérer div pour les notifications sur input titre
-const titleMessage = document.getElementById('js-title-notification');
-//Récupérer container des notifications sur input titre
-const titleMessageBox = document.getElementById('js-title-notification-container');
-//Récupérer div pour les notifications sur input catégories
-const categoryMessage = document.getElementById('js-categories-notification');
-//Récupérer container des notifications sur input catégories
-const categoryMessageBox = document.getElementById('js-categories-notification-container');
-
 // Récupération des inputs
 const projectImageInput = document.querySelector('#modal-project-image-input');
 const projectTitleInput = document.querySelector('#modal-project-title');
@@ -35,372 +19,38 @@ const projectCategoryInput = document.querySelector('#modal-project-category');
 //Récupération du bouton pour soumettre un projet
 const validateButton = document.querySelector('#modal-validate-button');
 
-import { fetchCategoriesReady, fetchGalleryReady } from './gallery.js';
-
 Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
-
-
-    //Fonction ouvrir la modale 
-    const openModal = function (event) {
-        event.preventDefault();
-        //Récupère élément cible de l'attribut data-href du lien cliqué
-        const currentModal = document.querySelector(this.getAttribute('data-href'));
-        //Affiche la modale en flexbox
-        currentModal.classList.add('flex-display');
-        currentModal.setAttribute('aria-hidden', false);
-        currentModal.setAttribute('aria-modal', true);
-
-        //Empêcher la page de défiler lorsque la modale est affichée
-        document.body.classList.add('js-modal-stop-scrolling');
-
-        //Clic sur la modale
-        currentModal.addEventListener('click', closeModal);
-        //Clic sur le bouton fermer modale
-        currentModal.querySelector('.js-modal-close').addEventListener('click', closeModal);
-        //Clic sur le container modal
-        currentModal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation);
-    };
-
-    //Fonction fermer la modale
-    const closeModal = function (event) {
-        event.preventDefault();
-        const currentModal = document.querySelector('dialog.modal[aria-hidden="false"]');
-        if (currentModal !== null) {
-            //Masque la modale
-            currentModal.classList.remove('flex-display');
-            currentModal.setAttribute('aria-hidden', true);
-            currentModal.setAttribute('aria-modal', false);
-            //Suppression des EventListener de la modale
-            currentModal.removeEventListener('click', closeModal);
-            currentModal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
-            currentModal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
-            // Remettre à zéro la modale add-photo si c'est celle qui est ouverte
-            if (currentModal.id === 'add-photo-modal') {
-                resetAddPhotoModal(projectImageInput, projectTitleInput, projectCategoryInput);
-            }
-            //Authorize à nouveau le défilement de la page
-            document.body.classList.remove('js-modal-stop-scrolling');
-        }
-    };
-
-    //Fonction stop propagation empêche la propagation de l'évènement vers les parents
-    //On ferme la modale uniquement en cliquant en dehors du modal container
-    const stopPropagation = function (event) {
-        event.stopPropagation();
-    };
-
-
-    //Fonction pour ajouter les icônes d'édition à chaque figure de la modale
-    function addEditIcons(figure) {
-        const modalWorkEditLegend = document.createElement('a');
-        modalWorkEditLegend.textContent = 'éditer';
-        //Création des icones pour supprimer et déplacer
-        const modalMoveIcon = document.createElement('i');
-        modalMoveIcon.classList.add('fa-solid', 'fa-up-down-left-right', 'hidden');
-        const modalDeleteIcon = document.createElement('button');
-        modalDeleteIcon.classList.add('fa-solid', 'fa-trash');
-        modalDeleteIcon.dataset.figureId = figure.getAttribute('data-figure-id');
-        //Rattachement des icones et la légende à la figure
-        figure.appendChild(modalMoveIcon);
-        figure.appendChild(modalDeleteIcon);
-        figure.appendChild(modalWorkEditLegend);
-        //Ajouter possibilité de supprimer un projet
-        addTrashIconFunction(modalDeleteIcon);
-        // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
-        figure.addEventListener('mouseout', function (event) {
-            if (event.target.tagName === 'IMG') {
-                // Masquer l'icône associé à l'image survolée
-                modalMoveIcon.classList.remove('icon-display-block');
-                modalMoveIcon.classList.add('hidden');
-            }
-        });
-        // Ajouter un gestionnaire d'événements pour l'événement "mouseover"
-        figure.addEventListener('mouseover', function (event) {
-            if (event.target.tagName === 'IMG') {
-                // Afficher l'icône associé à l'image survolée
-                modalMoveIcon.classList.remove('hidden');
-                modalMoveIcon.classList.add('icon-display-block');
-            }
-        });
-    }
-
-
-    function displayNotificationMessage(messageBox) {
-        messageBox.classList.add('flex-display');
-        messageBox.classList.remove('hidden');
-        setTimeout(function () {
-            messageBox.classList.add('hidden');
-            messageBox.classList.remove('flex-display');
-        }, 5000);
-    }
-
-
-    //Fonction pour supprimer les figures de l'API
-    function deleteProjectFromAPI(figureId) {
-        let figuresToDelete = document.querySelectorAll(`figure[data-figure-id="${figureId}"]`);
-        // Envoyer une requête DELETE à l'API pour supprimer le projet en base de données
-        fetch(`http://localhost:5678/api/works/${figureId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        })
-            .then(function (response) {
-                // Traiter la réponse
-                if (response.ok) {
-                    // Soumission réussie
-                    deleteMessage.textContent = 'Suppression du projet réussie';
-                    displayNotificationMessage(deleteMessageBox);
-                } else {
-                    if (response.status === 401) {
-                        throw new Error(`Erreur: Connexion requise pour supprimer le projet\n Veuillez vous connecter.`);
-                    }
-                    else if (response.status === 500) {
-                        throw new Error(`Erreur: Échec de la suppression du projet\n Veuillez réessayer plus tard.`);
-                    }
-                    else {
-                        throw new Error('Erreur: Échec de la suppression du projet');
-                    }
-                }
-            })
-            .then(() => {
-                //traitement de la réponse de l'API
-                figuresToDelete.forEach(figure => {
-                    figure.remove();
-                });
-            })
-            .catch(error => {
-                //traitement de l'erreur
-                deleteMessage.textContent = error.message;
-                deleteMessageBox.classList.remove('hidden');
-                deleteMessageBox.classList.add('flex-display');
-            });
-    }
-
-    function addTrashIconFunction(icon) {
-        icon.addEventListener('click', event => {
-            event.preventDefault();
-            if (confirm('Etes-vous sûr.e de vouloir supprimer cet élément ?')) {
-                let figureId = icon.getAttribute('data-figure-id');
-                deleteProjectFromAPI(figureId);
-            } else {
-                return;
-            }
-        });
-    }
-
-
-    //Fonction pour gérer le bouton Supprimer tout
-    function handleDeleteAllButton(button) {
-        button.addEventListener('click', event => {
-            event.preventDefault();
-            const allProjectsFigures = document.querySelectorAll('figure[data-category-id]');
-            if (confirm('ATTENTION : Etes-vous sûr.e de vouloir supprimer TOUS les projets ?')) {
-                allProjectsFigures.forEach(projectsFigure => {
-                    let figureId = projectsFigure.getAttribute('data-figure-id');
-                    deleteProjectFromAPI(figureId);
-                });
-            } else {
-                return;
-            }
-        });
-    }
-
-
-    //Fonction pour créer la liste déroulante des catégories
-    function createCategorySelect(categorySelect) {
-
-        //Créer une option vide par défaut
-        const emptyOption = document.createElement('option');
-        emptyOption.value = '';
-        emptyOption.textContent = '';
-        emptyOption.selected = true;
-        categorySelect.appendChild(emptyOption);
-
-        // Récupérer les boutons qui ont un attribut data-category-id
-        const filtersButtons = document.querySelectorAll('.filters-buttons button[data-category-id]');
-
-        // Créer les options pour chaque catégorie
-        filtersButtons.forEach(function (button) {
-            const option = document.createElement('option');
-            option.value = button.getAttribute('data-category-id');
-            option.textContent = button.textContent;
-            categorySelect.appendChild(option);
-        });
-    }
-
-    //Fonction vérifier que les inputs requis sont remplis dans add-photo-modal
-    function checkValidateButton(validateButton, image, title, category) {
-
-        let allInputsAreFilled = false;
-
-        if (image.value && title.value && category.value) {
-            //Couleur bouton Valider gris passe au vert lorsque les éléments required sont remplis
-            validateButton.classList.add('green-button');
-            validateButton.classList.remove('gray-button');
-            allInputsAreFilled = true;
-        } else {
-            validateButton.classList.remove('green-button');
-            validateButton.classList.add('gray-button');
-        }
-
-        return allInputsAreFilled;
-
-    }
-
-
-    function checkInputFormat(title, category) {
-
-        let titleIsValid = false;
-        let categoryIsValid = false;
-
-        //Vérification input titre
-        if (title.value) {
-            var titleValue = title.value;
-            var titleRegex = /^[A-Z0-9][a-zA-Z0-9- "&àâäéèêëîïôöùûü]{0,49}$/;
-            if (!titleRegex.test(titleValue)) {
-                titleIsValid = false;
-            } else {
-                titleIsValid = true;
-            }
-        }
-
-        // Récupérer les boutons qui ont un attribut data-category-id
-        const filtersButtons = document.querySelectorAll('.filters-buttons button[data-category-id]');
-        //Récupération nodeList des catégories et conversion en tableau
-        const categoryValues = Array.from(filtersButtons, button => button.getAttribute('data-category-id'));
-
-        if (category.value) {
-            var categoryInputValue = category.value;
-            if (!categoryValues.includes(categoryInputValue)) {
-                categoryIsValid = false;
-            } else {
-                categoryIsValid = true;
-            }
-        }
-
-        return { titleIsValid, categoryIsValid };
-
-    }
-
-    //Remettre à zero la modale add-photo
-    function resetAddPhotoModal(image, title, category) {
-        // Remettre les inputs à zéro
-        image.value = '';
-        title.value = '';
-        category.value = '';
-        //Supprimer l'image uploadée
-        const uploadedImage = image.parentNode.querySelector('#js-modal-uploaded-image');
-        if (uploadedImage) {
-            const imageInputBlock = uploadedImage.parentNode;
-            imageInputBlock.removeChild(uploadedImage);
-        }
-        //Afficher les autres éléments du block image-input
-        const elements = document.querySelectorAll('.modal-image-input-block :not(img#js-modal-uploaded-image)');
-        elements.forEach(element => {
-            element.classList.add('block-display');
-            element.classList.remove('hidden');
-        });
-        //Afficher validate Button en gris
-        validateButton.classList.add('gray-button');
-        validateButton.classList.remove('green-button');
-    }
-
-
-    //Fonction gestion de la soumission du formulaire
-
-    function submitForm(imageInput, projectTitleInput, projectCategorySelect) {
-
-        //Création de l'objet FormData pour envoyer les données
-        const formData = new FormData();
-        formData.append('image', imageInput.files[0]);
-        formData.append('title', projectTitleInput.value);
-        formData.append('category', projectCategorySelect.selectedOptions[0].value);
-
-        //Envoi des données à l'API pour l'ajout de l'image, du titre et de la catégorie
-        fetch('http://localhost:5678/api/works', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        })
-            .then(function (response) {
-                // Traiter la réponse
-                if (response.ok) {
-                    // Soumission réussie
-                    addMessage.textContent = `L'ajout du projet a réussi`;
-                    displayNotificationMessage(addMessageBox);
-                    return response.json();
-                } else {
-                    if (response.status === 400) {
-                        throw new Error(`Erreur dans les données envoyées\n Veuillez vérifier les données du formulaire.`);
-                    }
-                    else if (response.status === 401) {
-                        throw new Error(`Ajout du projet non authorisé\n Veuillez vous connecter.`);
-                    }
-                    else if (response.status === 500) {
-                        throw new Error(`Ajout impossible\n Erreur interne du serveur. Veuillez essayer ultérieurement.`);
-                    }
-                    else {
-                        throw new Error(`Erreur dans l'ajout du nouveau projet`);
-                    }
-                }
-            })
-            .then((data) => {
-                //Récupération des 2 galeries du DOM qui accueilleront les projets
-                const portfolioGallery = document.querySelector('.gallery');
-                const modalGallery = document.getElementById('modal-gallery');
-
-                //Création figure dans le DOM
-                const newFigure = createFigure(data, portfolioGallery, modalGallery);
-                addEditIcons(newFigure);
-
-                //Réinitialisation du formulaire
-                resetAddPhotoModal(imageInput, projectTitleInput, projectCategorySelect);
-            })
-            .catch(error => {
-                //traitement de l'erreur
-                addMessage.textContent = error.message;
-                addMessageBox.classList.add('flex-display');
-                addMessageBox.classList.remove('hidden');
-            });
-
-    }
-
 
     //Vérification de la valeur du token avant d'afficher modale sur la page en mode édition
     if (token !== null) {
 
         // Ajouter les icônes à la galerie modale
         const modalFigures = modalGallery.querySelectorAll('figure[data-category-id]');
-        modalFigures.forEach(addEditIcons);
+        modalFigures.forEach(myFunctions.addEditIcons);
 
-        //Appeler la fonction pour créer la liste déroulante des catégories
-        createCategorySelect(projectCategoryInput);
+        //Ajouter option vide par défaut à la liste déroulante des catégories
+        myFunctions.createEmptyCategory(projectCategoryInput);
 
         // Gérer le bouton supprimer tout
         const deleteAllButton = document.getElementById('gallery-delete-modal-button');
-        handleDeleteAllButton(deleteAllButton);
-
+        myFunctions.handleDeleteAllButton(deleteAllButton);
 
         //Ouvrir modale d'édition
         editorModalLink.addEventListener('click', function (event) {
-            openModal.call(event.currentTarget, event);
+            myFunctions.openModal.call(event.currentTarget, event);
         });
 
         //Ouvrir modale add-photo
         addPhotoModalLink.addEventListener('click', function (event) {
-            closeModal(event);
-            openModal.call(event.currentTarget, event); //openModal lorsqu'on clique sur addPhotoModalLink
+            myFunctions.closeModal(event);
+            myFunctions.openModal.call(event.currentTarget, event);
         });
-
 
         //Revenir à la modale précédente
         const modalPreviousButton = document.querySelector('.js-modal-previous');
         modalPreviousButton.addEventListener('click', function (event) {
-            closeModal(event);
-            openModal.call(editorModalLink, event);
+            myFunctions.closeModal(event);
+            myFunctions.openModal.call(editorModalLink, event);
         });
 
 
@@ -459,27 +109,39 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
 
         //Vérifier si les éléments requis sont remplis pour pouvoir valider
-        addPhotoForm.addEventListener('input', () => checkValidateButton(
+        addPhotoForm.addEventListener('input', () => myFunctions.checkValidateButton(
             validateButton, projectImageInput, projectTitleInput, projectCategoryInput
         ));
 
+        //Récupérer div pour les notifications d'ajout
+        const addMessage = document.getElementById('js-add-photo-notification');
+        //Récupérer container des notifications d'ajout pour afficher/masquer
+        const addMessageBox = document.getElementById('js-add-photo-notification-container');
+        //Récupérer div pour les notifications sur input titre
+        const titleMessage = document.getElementById('js-title-notification');
+        //Récupérer container des notifications sur input titre
+        const titleMessageBox = document.getElementById('js-title-notification-container');
+        //Récupérer div pour les notifications sur input catégories
+        const categoryMessage = document.getElementById('js-categories-notification');
+        //Récupérer container des notifications sur input catégories
+        const categoryMessageBox = document.getElementById('js-categories-notification-container');
 
         //Soumettre le formulaire 
         //On active la possibilité de soumettre le formulaire
         validateButton.addEventListener('click', (event) => {
             event.preventDefault();
-            let formatCheckResult = checkInputFormat(projectTitleInput, projectCategoryInput);
-            let inputsAreFilledResult = checkValidateButton(validateButton, projectImageInput, projectTitleInput, projectCategoryInput);
+            let formatCheckResult = myFunctions.checkInputFormat(projectTitleInput, projectCategoryInput);
+            let inputsAreFilledResult = myFunctions.checkValidateButton(validateButton, projectImageInput, projectTitleInput, projectCategoryInput);
             //Si les inputs sont tous correctement remplis
             if (inputsAreFilledResult && formatCheckResult.titleIsValid && formatCheckResult.categoryIsValid) {
                 //Soumettre formulaire
-                submitForm(projectImageInput, projectTitleInput, projectCategoryInput);
+                myFunctions.submitForm(token, projectImageInput, projectTitleInput, projectCategoryInput, addMessage, addMessageBox);
             }
             //S'il manque un input
             else if (!inputsAreFilledResult) {
                 //Message indique qu'il manque un ou plusieurs inputs
                 addMessage.textContent = `Veuillez ajouter une image, un titre et une catégorie pour valider.`;
-                displayNotificationMessage(addMessageBox);
+                myFunctions.displayNotificationMessage(addMessageBox);
             }
             //Si un format est incorrect
             else if (!formatCheckResult.titleIsValid || !formatCheckResult.categoryIsValid) {
@@ -487,19 +149,19 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
                 if (!formatCheckResult.titleIsValid) {
                     //Message indique que le format du titre n'est pas correct
                     titleMessage.textContent = `Le titre doit débuter par une majuscule et peut inclure des caractères spéciaux tels que &, -, "".`;
-                    displayNotificationMessage(titleMessageBox);
+                    myFunctions.displayNotificationMessage(titleMessageBox);
                 }
                 //Si le format de la catégorie est incorrecte
                 if (!formatCheckResult.categoryIsValid) {
                     //Message indique que le format de la catégorie n'est pas correct
                     categoryMessage.textContent = `Choisissez une catégorie dans la liste.`;
-                    displayNotificationMessage(categoryMessageBox);
+                    myFunctions.displayNotificationMessage(categoryMessageBox);
                 }
             }
             //Autre problème
             else {
                 addMessage.textContent = 'Veuillez vérifier les informations entrées dans le formulaire et essayez à nouveau de les soumettre.';
-                displayNotificationMessage(addMessageBox);
+                myFunctions.displayNotificationMessage(addMessageBox);
             }
 
         });
