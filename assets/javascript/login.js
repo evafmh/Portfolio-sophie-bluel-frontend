@@ -22,11 +22,11 @@ loginForm.addEventListener('submit', function (event) {
         },
         body: JSON.stringify(user)
     })
-        .then(function (response) {
+        .then(response => {
             // Traiter la réponse
             if (response.ok) {
                 // Connexion réussie
-                return response.json(); //transforme API en JSON
+                return response.json(); 
             } else {
 
                 // Connexion échouée
@@ -34,17 +34,17 @@ loginForm.addEventListener('submit', function (event) {
             }
         })
 
-        .then(function (data) {
+        .then(data => {
 
             const token = data.token;
 
-            //Stockage du token dans le localStorage
+            // Stocker le token dans le localStorage
             localStorage.setItem('adminToken', token);
-            // Rediriger l'utilisateur vers la page d'accueil édition
+            // Rediriger l'utilisateur vers la page d'accueil en mode édition
             window.location.replace('./index.html');
         })
 
-        .catch(function (error) {
+        .catch(error => {
             // Afficher un message d'erreur
             document.getElementById('login-error-message').textContent = error.message;
         });
