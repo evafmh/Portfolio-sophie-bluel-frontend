@@ -26,7 +26,11 @@ Promise.all([fetchGalleryReady, fetchCategoriesReady]).then(() => {
 
         // Ajouter les icônes à la galerie modale
         const modalFigures = modalGallery.querySelectorAll('figure[data-category-id]');
-        modalFigures.forEach(myFunctions.addEditIcons);
+        modalFigures.forEach(figure => {
+            myFunctions.addEditIcons(figure);
+            const modalDeleteIcon = figure.querySelector('button.fa-trash');
+            modalDeleteIcon.addEventListener('click', myFunctions.handleDeleteProjectClick);
+          });
 
         // Ajouter option vide par défaut à la liste déroulante des catégories
         myFunctions.createEmptyCategory(projectCategoryInput);

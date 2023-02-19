@@ -199,9 +199,6 @@ export function addEditIcons(figure) {
     figure.appendChild(modalDeleteIcon);
     figure.appendChild(modalEditLegend);
 
-    // Posssibilité de supprimer un projet au clic sur l'icône "suppression"
-    modalDeleteIcon.addEventListener('click', handleDeleteProjectClick);
-
     // Ajouter un gestionnaire d'événements pour l'événement "mouseout"
     figure.addEventListener('mouseout', function (event) {
         if (event.target.tagName === 'IMG') {
@@ -229,7 +226,7 @@ const deleteMessageBox = document.getElementById('js-delete-notification-contain
 const token = localStorage.getItem('adminToken');
 
 // Gérer le clic sur un icône "suppression" sur un projet
-function handleDeleteProjectClick(event) {
+export function handleDeleteProjectClick(event) {
     event.preventDefault();
     if (confirm('Etes-vous sûr.e de vouloir supprimer ce projet ?')) {
         const figureId = event.target.getAttribute('data-figure-id');
@@ -358,14 +355,11 @@ export function checkInputFormat(title, category) {
 
     // Création d'un tableau des id des catégories récupérées de l'API
     const categoryValues = Array.from(categoriesData, category => category.id);
-    console.log(categoryValues);
-    console.log(category.value);
 
 
     // Vérifier que l'input catégorie appartient à la liste des catégories
     if (category.value) {
         var categoryInputValue = parseInt(category.value); // convertir la valeur en nombre
-        console.log(categoryInputValue);
         if (!categoryValues.includes(categoryInputValue)) {
             categoryIsValid = false;
         } else {
@@ -428,6 +422,8 @@ export function submitForm(token, imageInput, projectTitleInput, projectCategory
             // Création de la figure dans le DOM
             const newFigure = createFigure(data, portfolioGallery, modalGallery);
             addEditIcons(newFigure);
+            const newDeleteIcon = newFigure.querySelector('button.fa-trash');
+            newDeleteIcon.addEventListener('click', handleDeleteProjectClick);
 
             // Réinitialisation du formulaire d'ajout
             const modal = imageInput.closest('.modal');
