@@ -1,7 +1,5 @@
 import { createFilterButton, createCategoryOption, handleFilterButtonClick, createFigure } from './myFunctions.js';
 
-let categoriesData = [];
-
 const fetchCategoriesReady = new Promise((resolve) => {
 
     //Récupération et affichage des catégories depuis le backend
@@ -13,14 +11,13 @@ const fetchCategoriesReady = new Promise((resolve) => {
             throw new Error('Erreur dans la récupération des catégories de projet');
         })
         .then(data => {
-            categoriesData = data;
             // Boucle sur les catégories pour créer les boutons filtres
             for (let i = 0; i < data.length; i++) {
                 // Création des boutons filtres
                 const filtersButtonBlock = document.querySelector('.filters-buttons');
                 const filtersButton = createFilterButton(data[i], filtersButtonBlock);
 
-                // Création de la liste des catégorie dans le formulaire d'ajout de projet
+                // Création de la liste des catégories dans le formulaire d'ajout de projet
                 const categorySelect = document.querySelector('#modal-project-category');
                 createCategoryOption(data[i], categorySelect);
 
@@ -28,7 +25,7 @@ const fetchCategoriesReady = new Promise((resolve) => {
                 filtersButton.addEventListener('click', handleFilterButtonClick);
 
             }
-            resolve();
+            resolve(data);
         })
         .catch(error => {
             document.querySelector('.filters-buttons').textContent = error.message;
@@ -36,8 +33,6 @@ const fetchCategoriesReady = new Promise((resolve) => {
 
         });
 });
-
-export { categoriesData };
 
 
 // Gestion du bouton "Tous"
@@ -47,7 +42,7 @@ displayAllFilterButton.addEventListener('click', handleFilterButtonClick);
 
 const fetchGalleryReady = new Promise((resolve) => {
 
-    // Récupéraytion et affichage des projets depuis le backend
+    // Récupération et affichage des projets depuis le backend
     fetch('http://localhost:5678/api/works')
         .then(response => {
             if (response.ok) {

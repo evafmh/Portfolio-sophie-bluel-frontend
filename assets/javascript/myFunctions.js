@@ -1,5 +1,3 @@
-import { categoriesData } from './gallery.js';
-
 // Créer un bouton filtre correspondant à une catégorie
 export function createFilterButton(category, buttonBlock) {
     const categoryButton = document.createElement('button');
@@ -337,7 +335,7 @@ export function checkValidateButton(validateButton, image, title, category) {
 
 
 // Vérifier le format de l'input titre et de l'input catégorie
-export function checkInputFormat(title, category) {
+export function checkInputFormat(title, category, categoriesList) {
 
     let titleIsValid = false;
     let categoryIsValid = false;
@@ -354,7 +352,7 @@ export function checkInputFormat(title, category) {
     }
 
     // Création d'un tableau des id des catégories récupérées de l'API
-    const categoryValues = Array.from(categoriesData, category => category.id);
+    const categoryValues = Array.from(categoriesList, category => category.id);
 
 
     // Vérifier que l'input catégorie appartient à la liste des catégories
