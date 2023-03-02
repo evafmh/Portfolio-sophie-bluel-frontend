@@ -1,4 +1,4 @@
-# Portfolio-sophie-bluel-frontend
+# FrontEnd Site Web de Sophie Bluel
 
 Ce repo contient le code frontend du portfolio de l'architecte Sophie Bluel.
 
